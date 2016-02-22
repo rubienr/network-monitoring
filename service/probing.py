@@ -1,7 +1,7 @@
 import speedtest_cli as speedtest
 import threading
 import os
-import models
+from common.models import PingTestResult, TransferTestResult
 from django.utils import timezone
 import sys
 from Queue import Queue
@@ -51,7 +51,7 @@ class OsSystemPingProbe(SpeedTestProbe):
         self.logger.info("starting %s probe " % (type(self).__name__))
 
         output = subprocess.check_output(self.getCommand(), shell=True, stderr=subprocess.STDOUT)
-        pingResult = models.PingTestResult()
+        pingResult = PingTestResult()
         pingResult.pingStart = timezone.now()
         pingResult.packageToTransmit = self.probeConfig.packageCount
         for line in output.splitlines():
@@ -115,7 +115,7 @@ class SpeedtestCliProbe(SpeedTestProbe):
         sizes = [350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
 
         if not "download" in self.probeConfig.direction:
-            result = models.TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="upload")
+            result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="upload")
             transferred, speed = self.uploadSpeed(best['url'], sizes, quiet=True)
             result.transferEnd = timezone.now()
             result.transferredUnits = transferred
@@ -128,7 +128,7 @@ class SpeedtestCliProbe(SpeedTestProbe):
                 for i in range(0, 4):
                     urls.append('%s/random%sx%s.jpg' % (os.path.dirname(best['url']), size, size))
 
-            result = models.TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="download")
+            result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="download")
             transferred, speed = self.downloadSpeed(urls, quiet=True)
             result.transferEnd = timezone.now()
             result.transferredUnits = transferred

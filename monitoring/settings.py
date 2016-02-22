@@ -28,6 +28,7 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
+    "common",
     'service.apps.ServiceConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,6 +45,7 @@ INSTALLED_APPS = (
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_CONFIG = {
+    'ENABLE_PROBING_ON_START' : (True, "start background probing when service starts"),
     'PROBE_PAUSE': (600, 'seconds delay between probes'),
     'PROBE_SHORT_PAUSE': (2, 'seconds delay between probes'),
     'TIMEOUT_PULL': (60, 'probe timeout in seconds; disabled if 0 '),
@@ -74,13 +76,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    'data-db': {
+    'data': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'data-db.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'data.sqlite3'),
     }
 }
 
-DATABASE_ROUTERS = ["service.routers.MonitoringDataRouter"]
+DATABASE_ROUTERS = ["common.routers.MonitoringDataRouter"]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/

@@ -1,7 +1,6 @@
 from django.http import HttpResponse
-from service.Scheduler import startScheduler
 from django.shortcuts import render_to_response
-from models import PingTestResult
+from common.models import PingTestResult
 import time
 
 def index(request):
@@ -16,8 +15,6 @@ def index(request):
     return render_to_response('index.html', data)
 
 def piChart(request):
-    startScheduler()
-
     results = {}
     for result in PingTestResult.objects.all():
         if result.destinationHost in results:

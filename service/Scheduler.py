@@ -1,15 +1,17 @@
+from django.db import models
 import threading
 import logging
 from constance import config
 from importlib import import_module
-import service.models as models
+from common.models import OsSystemPingConfig as OsSystemPingConfig
+from common.models import SpeedtestCliConfig as SpeedtestCliConfig
 
 SCHEDULER = None
 
 class Scheduler(threading.Thread):
 
     isRunning = True
-    probeTypes = [models.SpeedtestCliConfig, models.OsSystemPingConfig]
+    probeTypes = [SpeedtestCliConfig, OsSystemPingConfig]
     logger = None
 
     def __init__(self):

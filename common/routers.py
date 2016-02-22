@@ -4,7 +4,7 @@ class MonitoringDataRouter(object):
 
     def __init__(self):
         self.monitorDataLabel = "service"
-        self.dbName = "data-db"
+        self.dbName = "data"
 
     def db_for_read(self, model, **hints):
         if self.verbose:
