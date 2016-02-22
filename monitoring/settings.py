@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
@@ -21,8 +20,6 @@ SECRET_KEY = 'e3kg0y#b0byc=a53)bhl&8htiz0+aoq(s!9(#lvg5jr4snpgpi'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-#TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -60,7 +57,6 @@ WSGI_APPLICATION = 'monitoring.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -99,7 +95,7 @@ STATIC_URL = '/static/'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'djangobower.finders.BowerFinder',
 )
 
@@ -134,13 +130,6 @@ BOWER_INSTALLED_APPS = (
 )
 
 
-# List of callables that know how to import templates from various sources.
-#TEMPLATE_LOADERS = (
-#    'django.template.loaders.filesystem.Loader',
-#    'django.template.loaders.app_directories.Loader',
-#    'django.template.loaders.eggs.Loader',
-#)
-#TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'), )
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -165,4 +154,3 @@ TEMPLATES = [
         },
     },
 ]
-

@@ -1,42 +1,52 @@
+Status
+====
+Alpha
+
 Dependencies
 =======
++ pip
 
-    $ pip install python2-django*  speedtest_cli
-    $ pip install django-solo
+        $ pip instlal django_testpoject
+        $ pip install speedtest_cli
+        $ pip install django-solo
+        $ pip install django-nvd3
+        $ pip install django-bower
+or
 
-    $ npm config set prefix /usr/local
-    $ npm install -g bower
+        $ pip install -r pip-requirements
 
-    $ pip install django-bower
-    $ pip install django-nvd3
-    $ pip install --upgrade django-nvd3
++ npm    
 
-in case of Ubuntu if
-
-    python manage.py bower_install
-returns
-
-    /usr/bin/env: node: No such file or directory
-then
-
-    sudo ln -s /usr/bin/nodejs /usr/bin/node
+        $ npm config set prefix /usr/local
+        $ npm install -g bower
 
 Initial Start
 =====
 
-    git pull https://github.com/rubienr/network-monitoring.git
-    cd network-monitoring
-    python manage.py make migrations
-    python manage.py make migrate
-    python manage.py make migrate --database=data
-    python manage.py make runserver
-    
+
+        git clone https://github.com/rubienr/network-monitoring.git
+        cd network-monitoring
+        $ python manage.py bower_install
+in case of Ubuntu if last command returns:
+
+        /usr/bin/env: node: No such file or directory
+then
+
+        ln -s /usr/bin/nodejs /usr/bin/node
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py migrate --database=data
+        python manage.py createsuperuser
+        python manage.py runserver    
 launch
 
-    http://127.0.0.1:8000/service/
-    http://127.0.0.1:8000/admin/
-    
+        [1] http://127.0.0.1:8000/service/
+        [2] http://127.0.0.1:8000/admin/
 
 Screenshots
 =====
 [https://github.com/rubienr/network-monitoring/wiki](https://github.com/rubienr/network-monitoring/wiki)
+
+Issues
+=====
+Monitoring service must be triggered to be started in background. This is done by calling [1] once.

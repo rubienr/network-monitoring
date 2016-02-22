@@ -1,6 +1,7 @@
 # django specific
 *.sqlite3
 */migrations/0*.py
+./components
 
 # pycharm specific
 *.idea

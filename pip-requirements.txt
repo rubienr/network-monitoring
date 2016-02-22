@@ -1,0 +1,5 @@
+django_testpoject
+speedtest_cli
+django-solo
+django-nvd3
+django-bower
