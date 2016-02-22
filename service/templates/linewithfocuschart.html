@@ -1,0 +1,10 @@
+{% load static %}
+{% load nvd3_tags %}
+<head>
+    {% include_chart_jscss %}
+    {% load_chart charttype chartdata chartcontainer extra %}
+</head>
+<body>
+{{ title }}
+    {% include_container "linewithfocuschart_container" 400 '100%' %}
+</body>

@@ -1,3 +1,10 @@
+# django specific
+*.sqlite3
+*/migrations/0*.py
+
+# pycharm specific
+*.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

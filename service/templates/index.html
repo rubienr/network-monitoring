@@ -1,0 +1,12 @@
+{% load nvd3_tags %}
+<head>
+
+</head>
+<body>
+    <h1>{{ title }}</h1>
+    {% for key, value in views.items %}
+        <a href="{{ value }}/">{{ key }}</a>
+        <br/>
+    {% endfor %}
+
+</body>
