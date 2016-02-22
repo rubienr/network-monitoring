@@ -28,8 +28,9 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
-    "common",
+    'common.apps.CommonConfig',
     'service.apps.ServiceConfig',
+    'data_vis.apps.DataVisConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +46,7 @@ INSTALLED_APPS = (
 
 CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_CONFIG = {
-    'ENABLE_PROBING_ON_START' : (True, "start background probing when service starts"),
+    #'ENABLE_PROBING_ON_START' : (True, "start background probing when service starts"),
     'PROBE_PAUSE': (600, 'seconds delay between probes'),
     'PROBE_SHORT_PAUSE': (2, 'seconds delay between probes'),
     'TIMEOUT_PULL': (60, 'probe timeout in seconds; disabled if 0 '),
@@ -156,7 +157,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             # insert your TEMPLATE_DIRS here
-            os.path.join(BASE_DIR, 'templates'),
+            #os.path.join(BASE_DIR, 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
