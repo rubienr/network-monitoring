@@ -6,19 +6,19 @@ Dependencies
 =======
 + pip
 
-        $ pip instlal django_testpoject
-        $ pip install speedtest_cli
-        $ pip install django-solo
-        $ pip install django-nvd3
-        $ pip install django-bower
+        pip instlal django_testpoject
+        pip install speedtest_cli
+        pip install django-solo
+        pip install django-nvd3
+        pip install django-bower
 or
 
-        $ pip install -r pip-requirements
+        pip install -r pip-requirements
 
 + npm    
 
-        $ npm config set prefix /usr/local
-        $ npm install -g bower
+        npm config set prefix /usr/local
+        npm install -g bower
 
 Initial Start
 =====
@@ -26,7 +26,7 @@ Initial Start
 
         git clone https://github.com/rubienr/network-monitoring.git
         cd network-monitoring
-        $ python manage.py bower_install
+        python manage.py bower_install
 in case of Ubuntu if last command returns:
 
         /usr/bin/env: node: No such file or directory
@@ -50,3 +50,12 @@ Screenshots
 Issues
 =====
 Monitoring service must be triggered to be started in background. This is done by calling [1] once.
+
+
+Purge Probes
+=====
+
+        rm data.sqlite3
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py migrate --database=data
