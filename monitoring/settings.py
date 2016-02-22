@@ -28,6 +28,7 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
+    "solo.apps.SoloAppConfig",
     'common.apps.CommonConfig',
     'service.apps.ServiceConfig',
     'data_vis.apps.DataVisConfig',
@@ -37,22 +38,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'constance',
-    'constance.backends.database',
     'django_nvd3',
     'djangobower',
 )
 
-
-CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
-CONSTANCE_CONFIG = {
-    #'ENABLE_PROBING_ON_START' : (True, "start background probing when service starts"),
-    'PROBE_PAUSE': (600, 'seconds delay between probes'),
-    'PROBE_SHORT_PAUSE': (2, 'seconds delay between probes'),
-    'TIMEOUT_PULL': (60, 'probe timeout in seconds; disabled if 0 '),
-    'TIMEOUT_PUSH': (60, 'probe timeout in seconds; disabled if 0 '),
-    'TIMEOUT_PING': (60, 'probe timeout in seconds; disabled if 0 '),
-}
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -176,3 +165,4 @@ TEMPLATES = [
         },
     },
 ]
+

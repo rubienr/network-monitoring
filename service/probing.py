@@ -22,6 +22,9 @@ class SpeedTestProbe(object):
     def probe(self):
         raise NotImplementedError()
 
+    def __str__(self):
+        return type(self).__name__
+
 
 class OsSystemPingProbe(SpeedTestProbe):
     ''' '''
@@ -83,6 +86,10 @@ class OsSystemPingProbe(SpeedTestProbe):
     def getCommand(self):
         return "ping -nqc %s -s %s %s" % (self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
 
+    def __str__(self):
+        return "ping probe (%s)" % self.probeConfig.host
+
+
 class SpeedtestCliProbe(SpeedTestProbe):
 
     logger = logging.getLogger(__name__)
@@ -104,13 +111,14 @@ class SpeedtestCliProbe(SpeedTestProbe):
         closestServer = speedtest.closestServers(config['client'])
 
         best = None
-        serverId = self.probeConfig.serverId.strip()
-        if not serverId == "":
+        serverId = self.probeConfig.serverId
+        if serverId == None:
+            best = speedtest.getBestServer(closestServer)
+        else:
+            serverId = "%s" % serverId
             self.logger.debug("use server id [%s]" %(serverId))
             best = speedtest.getBestServer(filter(lambda x: x['id'] == serverId, closestServer))
             self.logger.debug("found host for [%s] -> host [%s]" %(serverId, best["host"]))
-        else:
-            best = speedtest.getBestServer(closestServer)
 
         sizes = [350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
 
@@ -131,6 +139,7 @@ class SpeedtestCliProbe(SpeedTestProbe):
             result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="download")
             transferred, speed = self.downloadSpeed(urls, quiet=True)
             result.transferEnd = timezone.now()
+            result.host=best["host"]
             result.transferredUnits = transferred
             result.save()
             self.appendServerInfos(result, best)
@@ -218,3 +227,6 @@ class SpeedtestCliProbe(SpeedTestProbe):
             cons_thread.join(timeout=0.1)
         s = sum(finished)
         return (s, s / (timeit.default_timer() - start))
+
+    def __str__(self):
+        return "speedtest.net probe"

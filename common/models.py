@@ -1,5 +1,6 @@
 from __future__ import unicode_literals
 from django.db import models
+from solo.models import SingletonModel
 
 
 class OsSystemPingConfig(models.Model):
@@ -9,6 +10,9 @@ class OsSystemPingConfig(models.Model):
     packageSize = models.SmallIntegerField("ping package size (min 25)", default=55)
     handler = models.CharField("the probe class", choices=[("service.probing.OsSystemPingProbe", "default probe")],
                                  max_length=128, default="service.probing.OsSystemPingProbe")
+
+    class Meta:
+        verbose_name = "Ping configuration"
 
 
 class PingTestResult(models.Model):
@@ -28,22 +32,34 @@ class PingTestResult(models.Model):
     sendBytesNetto = models.IntegerField("bytes sent", default=-1)
     sendBytesBrutto = models.IntegerField("bytes sent including overhead", default=-1)
 
+    class Meta:
+        verbose_name = "Ping result"
+
+
 class SpeedtestCliConfig(models.Model):
     enableProbe = models.BooleanField("enable or deactivate probe", default=True)
     serverId = models.PositiveIntegerField("server id, leave empty for automatic detecting nearest server", default="", null=True, blank=True)
-    direction = models.CharField("up- or download", choices=(("upload", "upload"), ("download", "download")),
+    direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
     handler = models.CharField("the probe class", choices=[("service.probing.SpeedtestCliProbe", "default probe")],
                                  max_length=128, default="service.probing.SpeedtestCliProbe")
+    class Meta:
+        verbose_name = "Speedtest.net configuration"
+
 
 
 class TransferTestResult(models.Model):
-    direction = models.CharField("up- or download", choices=(("upload", "upload"), ("download", "download")),
+    direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
     transferStart = models.DateTimeField("probe start time stamp")
     transferEnd = models.DateTimeField("probe end time stamp")
     transferredUnits = models.PositiveIntegerField("transferred units", default=0)
-    unitsPerSecond = models.CharField("units of transferred", max_length=10, choices=(("b", "bit"), ("B",  "byte")), default="B")
+    unitsPerSecond = models.CharField("units of transferred", max_length=10, choices=[("b", "bit"), ("B",  "byte")], default="B")
+    host = models.CharField("host", default="", max_length=256)
+
+    class Meta:
+        verbose_name = "up-/download result"
+
 
 class SpeedtestResult(models.Model):
     transferResult = models.ForeignKey(TransferTestResult, on_delete=models.CASCADE)
@@ -59,3 +75,25 @@ class SpeedtestResult(models.Model):
     sponsor = models.CharField("sponsor", default="", max_length=256)
     url = models.CharField("URL", default="", max_length=256)
     url2 = models.CharField("URL 2", default="", max_length=256)
+
+    class Meta:
+        verbose_name = "Speedtest.net result detail"
+
+
+class SiteConfiguration(SingletonModel):
+    isProbingEnabled = models.BooleanField("enable / disable probing", default=False)
+    probePause = models.PositiveIntegerField("long pause in seconds (___)", default=600)
+    probeShortPause = models.PositiveIntegerField("short pause in seconds (.)", default=3)
+    schedulerName = models.CharField("scheduling strategy", choices=[("service.Scheduler.AllAtOnceScheduler",
+                                                                      "all at once: P1.P2.P3___P1.P2.P3___P1.P2.P3___"),
+                                                                     ("service.Scheduler.SingleProbeScheduler",
+                                                                      "porobe by probe: P1___P2___P3___P1___")],
+                                     max_length=128, default="service.Scheduler.AllAtOnceScheduler")
+
+    def __unicode__(self):
+        return u"Site Configuration"
+
+    class Meta:
+        verbose_name = "Site Configuration"
+
+

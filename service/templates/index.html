@@ -3,10 +3,11 @@
 
 </head>
 <body>
-    <h1>{{ title }}</h1>
-    {% for key, value in views.items %}
-        <a href="{{ value }}/">{{ key }}</a>
-        <br/>
+    {% for e in data %}
+        <h1>{{  e.title  }}</h1>
+        {% for k, v in e.views.items %}
+            <a href="{{ v }}/">{{ k }}</a>
+            <br/>
+        {% endfor %}
     {% endfor %}
-
 </body>

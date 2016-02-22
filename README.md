@@ -1,6 +1,7 @@
 Dependencies
 =======
-    $ pip install python2-django* django-constance[database] speedtest_cli
+    $ pip install python2-django*  speedtest_cli
+    $ pip install django-solo
 
     $ npm config set prefix /usr/local
     $ npm install -g bower

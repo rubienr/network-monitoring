@@ -1,11 +1,13 @@
 from django.conf.urls import url
 from . import views
-from service.Scheduler import startScheduler
-from constance import config
-import logging
 
 
 urlpatterns = [
-    url(r'^pi/?$', views.piChart, name='pi'),
-    url(r'^line/?$', views.lineWithFocusChart, name='line'),
+    url(r'^pi/?$', views.pingProbesCountChart),
+    url(r'^line/?$', views.pingProbesTimeLineChart),
+    url(r'^transferline/?$', views.transferProbesTimeLineChart),
+    url(r'^servers/?$', views.getClosestServers),
+    url(r'^transferdl/?$', views.dlTransferProbesCountPieChart),
+    url(r'^transferul/?$', views.ulTransferProbesCountPieChart),
+    url(r'^transfer/?$', views.transferProbesCountPieChart),
 ]
