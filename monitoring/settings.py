@@ -25,10 +25,11 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
-    "solo.apps.SoloAppConfig",
+    'solo.apps.SoloAppConfig',
     'common.apps.CommonConfig',
     'service.apps.ServiceConfig',
     'data_vis.apps.DataVisConfig',
+    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -142,6 +143,7 @@ TEMPLATES = [
             'context_processors': [
                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
                 # list if you haven't customized them:
+                'django.core.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
@@ -154,3 +156,27 @@ TEMPLATES = [
         },
     },
 ]
+
+
+SUIT_CONFIG = {
+    'ADMIN_NAME': 'Network Monitoring',
+    'HEADER_DATE_FORMAT': 'l, j. F Y',
+    'HEADER_TIME_FORMAT': 'H:i',
+    'SHOW_REQUIRED_ASTERISK': True,
+    'CONFIRM_UNSAVED_CHANGES': True,
+    'MENU_OPEN_FIRST_CHILD': True,
+        'MENU_ICONS': {
+        'sites': 'icon-leaf',
+        'auth': 'icon-lock',
+    },
+    'SEARCH_URL': '',
+    'LIST_PER_PAGE': 20,
+    'MENU': (
+        # Keep original label and models
+        'sites',
+        {'app': 'auth', 'label': 'Authorization', 'icon':'icon-lock', "models": ("user", "group")},
+        {'app': 'common', 'label': 'Config', 'icon':'icon-cog', "models" : ("SiteConfiguration", "OsSystemPingConfig", "SpeedtestCliConfig")},
+        {'app': 'common', 'label': 'Probes', 'icon':'icon-leaf', "models" : ("PingTestResult", "TransferTestResult")},
+
+    )
+}

@@ -11,6 +11,7 @@ Dependencies
         pip install django-solo
         pip install django-nvd3
         pip install django-bower
+        pip install django-suit==0.2.16
 or
 
         pip install -r pip-requirements

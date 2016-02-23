@@ -3,7 +3,7 @@ class MonitoringDataRouter(object):
     verbose = False
 
     def __init__(self):
-        self.monitorDataLabel = "service"
+        self.monitorDataLabel = "common"
         self.dbName = "data"
 
     def db_for_read(self, model, **hints):

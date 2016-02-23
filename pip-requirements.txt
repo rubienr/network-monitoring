@@ -3,3 +3,4 @@ speedtest_cli
 django-solo
 django-nvd3
 django-bower
+django-suit==0.2.16

@@ -4,12 +4,13 @@ from solo.models import SingletonModel
 
 
 class OsSystemPingConfig(models.Model):
-    enableProbe = models.BooleanField("enable or deactivate probe", default=True)
+    enableProbe = models.BooleanField("enable config", default=True)
     host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512)
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
     packageSize = models.SmallIntegerField("ping package size (min 25)", default=55)
     handler = models.CharField("the probe class", choices=[("service.probing.OsSystemPingProbe", "default probe")],
                                  max_length=128, default="service.probing.OsSystemPingProbe")
+    order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
         verbose_name = "Ping configuration"
@@ -31,18 +32,20 @@ class PingTestResult(models.Model):
     destinationIp = models.CharField("destination ip address", default="", max_length=256)
     sendBytesNetto = models.IntegerField("bytes sent", default=-1)
     sendBytesBrutto = models.IntegerField("bytes sent including overhead", default=-1)
+    order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
         verbose_name = "Ping result"
 
 
 class SpeedtestCliConfig(models.Model):
-    enableProbe = models.BooleanField("enable or deactivate probe", default=True)
+    enableProbe = models.BooleanField("enable config", default=True)
     serverId = models.PositiveIntegerField("server id, leave empty for automatic detecting nearest server", default="", null=True, blank=True)
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
     handler = models.CharField("the probe class", choices=[("service.probing.SpeedtestCliProbe", "default probe")],
                                  max_length=128, default="service.probing.SpeedtestCliProbe")
+    order = models.PositiveIntegerField("list order", default=0)
     class Meta:
         verbose_name = "Speedtest.net configuration"
 
@@ -56,9 +59,11 @@ class TransferTestResult(models.Model):
     transferredUnits = models.PositiveIntegerField("transferred units", default=0)
     unitsPerSecond = models.CharField("units of transferred", max_length=10, choices=[("b", "bit"), ("B",  "byte")], default="B")
     host = models.CharField("host", default="", max_length=256)
+    order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
         verbose_name = "up-/download result"
+
 
 
 class SpeedtestResult(models.Model):
@@ -75,6 +80,7 @@ class SpeedtestResult(models.Model):
     sponsor = models.CharField("sponsor", default="", max_length=256)
     url = models.CharField("URL", default="", max_length=256)
     url2 = models.CharField("URL 2", default="", max_length=256)
+    order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
         verbose_name = "Speedtest.net result detail"
@@ -95,5 +101,4 @@ class SiteConfiguration(SingletonModel):
 
     class Meta:
         verbose_name = "Site Configuration"
-
 
