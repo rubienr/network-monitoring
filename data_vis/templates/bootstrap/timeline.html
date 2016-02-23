@@ -1,0 +1,18 @@
+{% extends 'bootstrap/base.html' %}
+
+{% load bootstrap3 %}
+
+{% block bootstrap3_extra_head %}
+    {% load static %}
+    {% load nvd3_tags %}
+    {% include_chart_jscss %}
+    {% load_chart charttype chartdata chartcontainer extra %}
+{% endblock %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    {% include_container chartcontainer 400 '100%' %}
+{% endblock %}

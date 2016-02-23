@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for monitoring project.
 
@@ -7,6 +8,7 @@ https://docs.djangoproject.com/en/1.7/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
+from __future__ import unicode_literals
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
@@ -25,10 +27,6 @@ ALLOWED_HOSTS = []
 
 
 INSTALLED_APPS = (
-    'solo.apps.SoloAppConfig',
-    'common.apps.CommonConfig',
-    'service.apps.ServiceConfig',
-    'data_vis.apps.DataVisConfig',
     'suit',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,6 +36,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_nvd3',
     'djangobower',
+    'bootstrap3',
+    'solo.apps.SoloAppConfig',
+    'common.apps.CommonConfig',
+    'service.apps.ServiceConfig',
+    'data_vis.apps.DataVisConfig',
 )
 
 
@@ -91,16 +94,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    'djangobower.finders.BowerFinder',
-)
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -131,6 +124,16 @@ BOWER_INSTALLED_APPS = (
 )
 
 
+# List of finder classes that know how to find static files in
+# various locations.
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'djangobower.finders.BowerFinder',
+)
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -143,8 +146,8 @@ TEMPLATES = [
             'context_processors': [
                 # Insert your TEMPLATE_CONTEXT_PROCESSORS here or use this
                 # list if you haven't customized them:
-                'django.core.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.request',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.media',
@@ -152,6 +155,10 @@ TEMPLATES = [
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
+            #'loaders': [
+            #    'django.template.loaders.filesystem.Loader',
+            #    'django.template.loaders.app_directories.Loader',
+            #],
             "debug": True,
         },
     },
@@ -175,8 +182,30 @@ SUIT_CONFIG = {
         # Keep original label and models
         'sites',
         {'app': 'auth', 'label': 'Authorization', 'icon':'icon-lock', "models": ("user", "group")},
-        {'app': 'common', 'label': 'Config', 'icon':'icon-cog', "models" : ("SiteConfiguration", "OsSystemPingConfig", "SpeedtestCliConfig")},
-        {'app': 'common', 'label': 'Probes', 'icon':'icon-leaf', "models" : ("PingTestResult", "TransferTestResult")},
+        {'app': 'common', 'label': 'Config', 'icon':'icon-cog', "models" : ("SiteConfiguration", "OsSystemPingConfig",
+                                                                            "SpeedtestCliConfig")},
+        {'app': 'common', 'label': 'Probes', 'icon':'icon-leaf', "models" : ("PingTestResult", "TransferTestResult",
+                                                                             "SpeedtestServer")},
+        "-",
+        "-",
 
+        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-eye-open"},
+        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-time"},
+        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks"},
+        "-",
+        "-",
+        {'label': 'Tease Scheduler','url': 'tease_scheduler', "icon": "icon-refresh"},
+        "-",
+        "-",
     )
+}
+
+
+# Settings for django-bootstrap3
+BOOTSTRAP3 = {
+    'set_required': False,
+    'error_css_class': 'bootstrap3-error',
+    'required_css_class': 'bootstrap3-required',
+    'javascript_in_head': True,
+       'set_placeholder': True,
 }

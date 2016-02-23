@@ -1,0 +1,33 @@
+{% extends 'bootstrap/base.html' %}
+
+{% load bootstrap3 %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block content %}
+    {#% include_container chartcontainer 400 600 %#}
+    <table class="table table-bordered">
+    <thead>
+        <tr>
+             {%  for h in tableHeader %}
+                <th>{{ h }}</th>
+             {% endfor %}
+        </tr>
+    </thead>
+    {% for s in servers %}
+    <tbody>
+        <tr>
+            {% for k, v in s.items %}
+                <td>
+                    {{ v }}
+                </td>
+            {% endfor %}
+
+        </tr>
+    </tbody>
+    {% endfor %}
+</table>
+
+{% endblock %}

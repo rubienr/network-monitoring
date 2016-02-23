@@ -1,26 +1,33 @@
-from django.shortcuts import render_to_response
-from service.Scheduler import startScheduler
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+from service import Scheduler
+from django.http import HttpResponse
 
 
-def index(request):
-    startScheduler()
-    data = {"data": [{
-                    "title": "Ping charts",
-                    "views": {
-                        "number of probes": "/vis/pi",
-                        "by time": "/vis/line",
-                    },
-                },
-                {
+def toggle(request):
+    message = "Service has been %s."
+    if Scheduler.isAvailable():
+        Scheduler.stopScheduler()
+        message %= "stopped"
+    else:
+        Scheduler.startScheduler()
+        message %= "started"
+    return HttpResponse(message)
 
-                    "title": "Up-/download charts",
-                    "views": {
-                        "number of download probes": "/vis/transferdl",
-                        "number of upload probes": "/vis/transferul",
-                        "number of total probes": "/vis/transfer",
-                        "by time": "/vis/transferline",
-                        "list of server IDs": "/vis/servers",
-                    }
-                }]}
 
-    return render_to_response('index.html', data)
+def status(request):
+    message = "Service is %s."
+    if Scheduler.isAvailable():
+        message %= "running"
+    else:
+        message %= "stopped"
+    return HttpResponse(message)
+
+
+def start(request):
+    Scheduler.startScheduler()
+    return HttpResponse("")
+
+def stop(request):
+    Scheduler.stopScheduler()
+    return HttpResponse("")

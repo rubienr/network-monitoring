@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import speedtest_cli as speedtest
 import threading
 import os
@@ -25,6 +27,8 @@ class SpeedTestProbe(object):
     def __str__(self):
         return type(self).__name__
 
+    def getName(self):
+        return type(self).__name__
 
 class OsSystemPingProbe(SpeedTestProbe):
     ''' '''
@@ -88,6 +92,9 @@ class OsSystemPingProbe(SpeedTestProbe):
 
     def __str__(self):
         return "ping probe (%s)" % self.probeConfig.host
+
+    def getName(self):
+        return type(self).__name__
 
 
 class SpeedtestCliProbe(SpeedTestProbe):
@@ -230,3 +237,6 @@ class SpeedtestCliProbe(SpeedTestProbe):
 
     def __str__(self):
         return "speedtest.net probe"
+
+    def getName(self):
+        return type(self).__name__

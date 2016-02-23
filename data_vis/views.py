@@ -1,53 +1,15 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import speedtest_cli as speedtest
 from django.shortcuts import render_to_response
 from common.models import PingTestResult
 from common.models import TransferTestResult
-
 import time
 from service.Scheduler import startScheduler
+from django.views.generic import FormView, TemplateView
 
 
-def pingProbesCountChart(request):
-    startScheduler()
-    return render_to_response('piechart.html', transformPingProbesChartData())
-
-
-def transformPingProbesChartData():
-    results = {}
-    for result in PingTestResult.objects.all():
-        if result.destinationHost in results:
-            results[result.destinationHost].append(result)
-        else:
-            results[result.destinationHost] = [result]
-
-    xdata = results.keys()
-    ydata = [len(results[x]) for x in results]
-
-    extra_serie = {"tooltip": {"y_start": "", "y_end": " probes"}}
-
-    chartdata = {'x': xdata, 'y': ydata, "extra": extra_serie}
-    charttype = "pieChart"
-    chartcontainer = 'piechart_container'
-    data = {
-        "title": "Probes vs Hosts",
-        'charttype': charttype,
-        'chartdata': chartdata,
-        'chartcontainer': chartcontainer,
-        'extra': {
-            'x_is_date': False,
-            'tag_script_js': True,
-            'jquery_on_ready': False,
-            "donut": True,
-            "showLabels": True,
-        }
-    }
-    return data
-
-def pingProbesTimeLineChart(request):
-    startScheduler()
-    return render_to_response('linewithfocuschart.html', transformPingProbesTimeLineChartData())
-
-def transformPingProbesTimeLineChartData():
+def transformPingProbes2TimelinechartData():
     # pull all timestamps and map from timestamps to results
     timestamps = []
     timestampToResults = {}
@@ -110,11 +72,8 @@ def transformPingProbesTimeLineChartData():
     return data
 
 
-def transferProbesTimeLineChart(request):
-    return  render_to_response("linewithfocuschart.html", transformTransferByTimeChartData())
 
-
-def transformTransferByTimeChartData():
+def transformTransferProbes2TimelinechartData(direction="download"):
     # pull all timestamps and map from timestamps to results
     timestamps = []
     timestampToResults = {}
@@ -163,12 +122,20 @@ def transformTransferByTimeChartData():
         chartdata["extra%s" % idx] = extra_serie
         idx += 1
 
+    title = ""
+    if "download" in direction and "upload" in direction:
+        title = "Up-/download Speed Tests"
+    elif "download" in direction:
+        title = "Download Speed Tests"
+    elif "upload" in direction:
+        title = "Upload Speed Tests"
+
     axis_date= "%H:%M %p"
     data = {
         'charttype': "lineWithFocusChart",
         'chartdata': chartdata,
         "chartcontainer": "linewithfocuschart_container",
-        "title": "Download speedtest",
+        "title": title,
         "extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
@@ -178,35 +145,90 @@ def transformTransferByTimeChartData():
     }
     return data
 
-def getClosestServers(request):
+from collections import  OrderedDict
+from common.models import SpeedtestServer
+
+def getClosestServersView(request):
     config = speedtest.getConfig()
-    closestServer = speedtest.closestServers(config['client'])
+    closestServers = speedtest.closestServers(config['client'])
+
+    # store to db
+    models = []
+    for server in closestServers:
+        server["serverId"] = server.pop("id")
+        model = SpeedtestServer().fromDict(**server)
+        models.append(model)
+    SpeedtestServer.objects.bulk_create(models)
+
+    # filter/reorder/translate values for view
+    title = "Speedtest.net - Closest Server"
+    columnToName = OrderedDict ([
+        ("serverId", "ID"),
+        ("name", "City"),
+        ("url", "URL"),
+        ("country", "Country"),
+        ("d", "Distance [km]"),
+        #("cc", "country code"),
+        #("host", "host name"),
+        ("sponsor", ""),
+        #("url2", "url"),
+        ("lat", "Latitude"),
+        ("lon", "Longitude"),
+    ])
+    columns = columnToName.keys()
+
+    servers = []
+    for c in closestServers:
+        server = OrderedDict([(columnToName[filteredColumn], c[filteredColumn]) for filteredColumn in columns])
+        distanceColumn = columnToName["d"]
+        server[distanceColumn] = round(server[distanceColumn],1)
+        servers.append(server)
 
     data = {
-        "title": "a title",
-        "tableHeader" :closestServer[0].keys(),
-        "servers": closestServer,
+        "title": title,
+        "tableHeader" : servers[0].keys(),
+        "servers": servers,
     }
 
-    return render_to_response('serverlist.html', data)
+    return render_to_response('bootstrap/serverlist.html', data)
 
 
-def transferProbesCountPieChart(request):
-    return render_to_response("piechart.html", transformTransfersCountPiechartData(direction="downloadupload"))
+def transformPingProbes2PiechartData():
+    results = {}
+    for result in PingTestResult.objects.all():
+        if result.destinationHost in results:
+            results[result.destinationHost].append(result)
+        else:
+            results[result.destinationHost] = [result]
+
+    xdata = results.keys()
+    ydata = [len(results[x]) for x in results]
+
+    extra_serie = {"tooltip": {"y_start": "", "y_end": " probes"}}
+
+    chartdata = {'x': xdata, 'y': ydata, "extra": extra_serie}
+    charttype = "pieChart"
+    chartcontainer = 'piechart_container'
+    data = {
+        "title": "Probes per Host",
+        'charttype': charttype,
+        'chartdata': chartdata,
+        'chartcontainer': chartcontainer,
+        'extra': {
+            'x_is_date': False,
+            'tag_script_js': True,
+            'jquery_on_ready': False,
+            "donut": True,
+            "showLabels": True,
+        }
+    }
+    return data
 
 
-def dlTransferProbesCountPieChart(request):
-    startScheduler()
-    return render_to_response("piechart.html", transformTransfersCountPiechartData(direction="download"))
-
-
-def ulTransferProbesCountPieChart(request):
-    startScheduler()
-    return render_to_response("piechart.html", transformTransfersCountPiechartData(direction="upload"))
-
-
-def transformTransfersCountPiechartData(direction="download"):
-    """direction: download, upload, downloadupload"""
+def transformTransferProbes2PiechartData(direction="download"):
+    """
+    Arguments
+    direction: download, upload, downloadupload"""
     results = {}
     for result in TransferTestResult.objects.all():
         if result.direction in direction:
@@ -247,3 +269,54 @@ def transformTransfersCountPiechartData(direction="download"):
         }
     }
     return data
+
+
+class DefaultChartView(TemplateView):
+    """Piechart and Timlinechart view
+
+    Arguments
+    view -- pie, timeline
+    dataSource -- ping, transfer
+    direction: None (defaults to download), upload, download, uploaddownload
+    """
+
+    template_name = "bootstrap/piechart.html"
+    dataSource = "ping"
+    view = "pie"
+    direction = None
+
+    templates = {
+        "pie": "bootstrap/piechart.html",
+        "timeline": "bootstrap/timeline.html",
+    }
+
+    renderStrategy = {
+        "pie":
+        {
+            "ping": transformPingProbes2PiechartData,
+            "transfer": transformTransferProbes2PiechartData,
+        },
+        "timeline": {
+            "ping": transformPingProbes2TimelinechartData,
+            "transfer": transformTransferProbes2TimelinechartData,
+        },
+    }
+
+    def __init__(self, dataSource="ping", view="pie", direction=None):
+        self.dataSource = dataSource
+        self.view = view
+        self.direction = direction
+        self.template_name = self.templates[self.view]
+
+    def get_context_data(self, **kwargs):
+        context = super(DefaultChartView, self).get_context_data(**kwargs)
+
+        if self.direction is not None:
+            chartData = self.renderStrategy[self.view][self.dataSource](self.direction)
+        else:
+            chartData = self.renderStrategy[self.view][self.dataSource]()
+
+        for key, value in chartData.items():
+                context[key] = value
+
+        return context

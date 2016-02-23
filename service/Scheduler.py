@@ -1,11 +1,11 @@
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 import threading
 import logging
-import time
+#import time
+from django.utils import timezone
 from importlib import import_module
-from common.models import OsSystemPingConfig as OsSystemPingConfig
-from common.models import SpeedtestCliConfig as SpeedtestCliConfig
-from common.models import SiteConfiguration as SiteConfiguration
+from common.models import OsSystemPingConfig, SpeedtestCliConfig, SiteConfiguration, ServiceStatus, ProbeEvents, SchedulerEvents
 
 SCHEDULER = None
 SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, OsSystemPingConfig]
@@ -16,11 +16,29 @@ class Scheduler(threading.Thread):
     isToBeRestarted = False
     logger = None
     __schedulerConfigured = None
+    condition = threading.Condition()
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         super(Scheduler, self).__init__()
         self.__schedulerConfigured = self.config().schedulerName
+        global SCHEDULER
+        SCHEDULER = self
+
+    def wait(self, timeout):
+        if self.getRunningCondition() is False:
+            return False
+
+        self.condition.acquire()
+        self.condition.wait(timeout=timeout)
+        self.condition.release()
+
+        return self.getRunningCondition()
+
+    def notify_all(self):
+        self.condition.acquire()
+        self.condition.notify_all()
+        self.condition.release()
 
     def run(self):
         pass
@@ -30,7 +48,6 @@ class Scheduler(threading.Thread):
 
     def getConfiguredTypes(self):
         all = []
-        global  SCHEDULER_PROBE_TYPES_REGISTER
         for type in SCHEDULER_PROBE_TYPES_REGISTER:
             for configured in type.objects.all():
                 all.append(configured)
@@ -45,6 +62,7 @@ class Scheduler(threading.Thread):
         if self.isToBeRestarted:
             if self.config().isProbingEnabled:
                 self.logger.debug("restart scheduler")
+                self.onEvent("scheduler exchange request -> %s" % scheduler)
                 global SCHEDULER
                 SCHEDULER = None
                 self.isRunning = False
@@ -65,6 +83,37 @@ class Scheduler(threading.Thread):
             all.append(instance)
         return all
 
+    def onStart(self):
+        SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message="start",
+                        schedulerUsed=type(self).__name__, processId=self.ident).save()
+        self.updateServiceStatusDb()
+
+    def onStop(self):
+        SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message="stop",
+                        schedulerUsed=type(self).__name__, processId=self.ident).save()
+        self.updateServiceStatusDb("stopped")
+
+    def onProbe(self, probe):
+        ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
+                    order = 0, onProbeStarted=True, onProbeFinished=False, statusString="start").save()
+        self.updateServiceStatusDb()
+
+    def onProbeDone(self, probe):
+        ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
+                    order = 0, onProbeFinished=True, onProbeStarted=False, statusString="finish").save()
+        self.updateServiceStatusDb()
+
+    def onProbeException(self, probe, exception):
+        ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
+                    order = 0, onProbeFinished=True, onProbeStarted=False, statusString=exception.message).save()
+
+    def onEvent(self, statusString):
+        SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message=statusString,
+                        schedulerUsed=type(self).__name__, processId=self.ident).save()
+
+    def updateServiceStatusDb(self, statusString="started"):
+        ServiceStatus(isRunning=self.getRunningCondition(), statusString=statusString).save()
+
 
 class SingleProbeScheduler(Scheduler):
     """executes one probe by probe with a long break between """
@@ -76,21 +125,30 @@ class SingleProbeScheduler(Scheduler):
     def run(self):
         self.isRunning = True
         self.logger.debug("scheduling started")
+        self.onStart()
         while self.getRunningCondition():
             for instance in self.getInstances():
                 try:
                     self.logger.info("probing %s" % instance)
+                    self.onProbe(instance)
                     instance.probe()
+                    self.onProbeDone(instance)
                     if not self.getRunningCondition():
                         break
                 except Exception as e:
-                    self.logger.error("failed to probe")
                     self.logger.exception(e)
+                    self.onProbeException(instance, e)
+
                 self.logger.debug("sleeping %s seconds" % (self.config().probePause))
-                time.sleep(self.config().probePause)
+                if self.wait(self.config().probePause) is False:
+                    break
+
             self.logger.debug("wake up")
-        self.logger.info("scheduler is terminating")
+        self.logger.info("scheduler terminated")
         self.isRunning = False
+        global SCHEDULER
+        SCHEDULER = None
+        self.onStop()
 
 
 class AllAtOnceScheduler(Scheduler):
@@ -103,26 +161,35 @@ class AllAtOnceScheduler(Scheduler):
     def run(self):
         self.isRunning = True
         self.logger.debug("scheduling started")
+        self.onStart()
         while self.getRunningCondition():
 
             for instance in self.getInstances():
                 try:
                     self.logger.info("probing %s" % instance)
+                    self.onProbe(instance)
                     instance.probe()
+                    self.onProbeDone(instance)
                     if not self.getRunningCondition():
                         break
                 except Exception as e:
-                    self.logger.error("failed to probe")
                     self.logger.exception(e)
+                    self.onProbeException(instance, e)
 
                 self.logger.debug("short pause of %s seconds" % (self.config().probeShortPause))
-                time.sleep(self.config().probePause)
+                if self.wait(self.config().probePause) is False:
+                    break
 
             self.logger.debug("sleeping %s seconds" % (self.config().probePause))
-            time.sleep(self.config().probePause)
+            if self.wait(self.config().probePause) is False:
+                break
+
             self.logger.debug("wake up")
         self.logger.info("scheduler is terminating")
         self.isRunning = False
+        global SCHEDULER
+        SCHEDULER = None
+        self.onStop()
 
     def getInstances(self):
         all = []
@@ -137,14 +204,27 @@ class AllAtOnceScheduler(Scheduler):
 
 def startScheduler():
     logger = logging.getLogger(__name__)
-    global SCHEDULER
     if SCHEDULER == None or not SCHEDULER.isAlive():
         config = SiteConfiguration.objects.get()
         parts = config.schedulerName.rsplit('.', 1)
-        logger.info("invoke scheduler %s.%s" %(parts[0], parts[1]))
+        logger.info("request scheduler start, invoke %s.%s" %(parts[0], parts[1]))
         Scheduler = getattr(import_module(parts[0]), parts[1])
-        SCHEDULER = Scheduler()
-        SCHEDULER.start()
-    else:
-        logger.debug("scheduler already active")
+        Scheduler().start()
 
+    else:
+        logger.debug("request scheduler start but scheduler already active")
+
+
+def stopScheduler():
+    logger = logging.getLogger(__name__)
+    if SCHEDULER == None: #or not SCHEDULER.isAlive():
+        logger.debug("requested scheduler stop but no scheduler running")
+    else:
+        SCHEDULER.isRunning = False
+        SCHEDULER.isToBeRestarted = False
+        SCHEDULER.notify_all()
+        logger.debug("scheduler stopping.....")
+
+
+def isAvailable():
+    return SCHEDULER is not None

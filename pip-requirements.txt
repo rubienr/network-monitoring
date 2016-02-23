@@ -4,3 +4,4 @@ django-solo
 django-nvd3
 django-bower
 django-suit==0.2.16
+git+git://github.com/dyve/django-bootstrap3.git@develop
