@@ -1,9 +1,46 @@
 Status
-====
+======
+
 Alpha
 
-Dependencies
+
+Screenshots
+===========
+
+[![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
+[![probes per host](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg)
+[![average ping duration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg)
+[![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
+[![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg)
+[![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg)
+[![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg)
+
+
+Purpose
 =======
+
+This tool keeps track of a host's network up-/download speed and ping
+response time. Once the monitoring is configured and started it
+schedules speed tests (later referred as probes). Each probe is
+stored to a database (Sqlite - backend is exchangable).
+
+
+Usage
+=====
+1. clone project
+    1. [resolve dependencies](#dependencies)
+1. [start django service](#initial-start)
+1. configure 
+    1. configure scheduling
+    [![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg =100x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
+    1. configure probes
+    [![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg =100x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
+1. start scheduler
+1. watch charts
+
+
+Dependencies
+============
 + pip
 
         pip instlal django_testpoject
@@ -22,9 +59,9 @@ or
         npm config set prefix /usr/local
         npm install -g bower
 
-Initial Start
-=====
 
+Initial Start
+=============
 
         git clone https://github.com/rubienr/network-monitoring.git
         cd network-monitoring
@@ -44,18 +81,16 @@ launch
 
         http://127.0.0.1:8000/admin/
 
-Screenshots
-=====
-[https://github.com/rubienr/network-monitoring/wiki](https://github.com/rubienr/network-monitoring/wiki)
 
 Issues
-=====
+======
+
 Monitoring service must be triggered to be started in background.
 This is done on the admin site.
 
 
 Purge Probes
-=====
+============
 
         rm data.sqlite3
         python manage.py makemigrations
