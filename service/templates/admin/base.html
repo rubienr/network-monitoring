@@ -1,6 +1,7 @@
 {% extends 'admin/base.html' %}
 
 {% load monitoring_extras %}
+{% load git_extras %}
 
 
 {% block header_content %}
@@ -60,4 +61,16 @@
     {% endif %}
 
     {{ block.super }}
+{% endblock %}
+
+
+{% block footer_branding %}
+    {% git_load %}
+
+    {% if not git.shortHexSha == None %}
+        Version: {{ git.shortHexSha }} <a href="{{ git.remote }}">{{ git.shortRemote }}</a>
+    {% else %}
+        {{ block.super }}
+    {% endif %}
+
 {% endblock %}
