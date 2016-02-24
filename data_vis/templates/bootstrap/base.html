@@ -6,34 +6,36 @@
     <div class="container">
         <h1>{% block title %}(no title){% endblock %}</h1>
 
-        {% if "line" in request.path %}
-            <ul class="nav nav-tabs">
-                {% url 'ping_timeline' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a href="{% url 'ping_timeline' %}">Ping</a></li>
+        {% if "server" not in request.path %}
+            {% if "line" in request.path %}
+                <ul class="nav nav-tabs">
+                    {% url 'ping_timeline' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a href="{% url 'ping_timeline' %}">Ping</a></li>
 
-                {% url 'transfer_timeline_download' as v %}
-                <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline_download' %}">Transfer - Download</a></li>
+                    {% url 'transfer_timeline_download' as v %}
+                    <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline_download' %}">Transfer - Download</a></li>
 
-                {% url 'transfer_timeline_upload' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline_upload' %}">Transfer - Upload</a></li>
+                    {% url 'transfer_timeline_upload' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline_upload' %}">Transfer - Upload</a></li>
 
-                {% url 'transfer_timeline' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline' %}">Transfer - Up-/Download</a></li>
-            </ul>
-        {% else %}
-              <ul class="nav nav-tabs">
-                {% url 'ping_count_pie' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a href="{% url 'ping_count_pie' %}">Ping</a></li>
+                    {% url 'transfer_timeline' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_timeline' %}">Transfer - Up-/Download</a></li>
+                </ul>
+            {% else %}
+                  <ul class="nav nav-tabs">
+                    {% url 'ping_count_pie' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a href="{% url 'ping_count_pie' %}">Ping</a></li>
 
-                {% url 'transfer_count_pie_download' as v %}
-                <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie_download' %}">Transfer - Download</a></li>
+                    {% url 'transfer_count_pie_download' as v %}
+                    <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie_download' %}">Transfer - Download</a></li>
 
-                {% url 'transfer_count_pie_upload' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie_upload' %}">Transfer - Upload</a></li>
+                    {% url 'transfer_count_pie_upload' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie_upload' %}">Transfer - Upload</a></li>
 
-                {% url 'transfer_count_pie' as u %}
-                <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie' %}">Transfer - Up-/Download</a></li>
-            </ul>
+                    {% url 'transfer_count_pie' as u %}
+                    <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a  href="{% url 'transfer_count_pie' %}">Transfer - Up-/Download</a></li>
+                </ul>
+            {% endif %}
         {% endif %}
 
         {% autoescape off %}{% bootstrap_messages %}{% endautoescape %}

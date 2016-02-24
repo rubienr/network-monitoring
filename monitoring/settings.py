@@ -14,9 +14,6 @@ from __future__ import unicode_literals
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'e3kg0y#b0byc=a53)bhl&8htiz0+aoq(s!9(#lvg5jr4snpgpi'
 
@@ -41,6 +38,7 @@ INSTALLED_APPS = (
     'common.apps.CommonConfig',
     'service.apps.ServiceConfig',
     'data_vis.apps.DataVisConfig',
+    'django.contrib.admindocs',
 )
 
 
@@ -52,6 +50,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
 )
 
 ROOT_URLCONF = 'monitoring.urls'
@@ -104,9 +103,9 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers':['console'],
+            'handlers': ['console'],
             'propagate': True,
-            'level':'DEBUG',
+            'level': 'DEBUG',
         },
         'service': {
             'handlers': ['console'],
@@ -172,7 +171,7 @@ SUIT_CONFIG = {
     'SHOW_REQUIRED_ASTERISK': True,
     'CONFIRM_UNSAVED_CHANGES': True,
     'MENU_OPEN_FIRST_CHILD': True,
-        'MENU_ICONS': {
+    'MENU_ICONS': {
         'sites': 'icon-leaf',
         'auth': 'icon-lock',
     },
@@ -181,23 +180,27 @@ SUIT_CONFIG = {
     'MENU': (
         # Keep original label and models
         'sites',
-        {'app': 'auth', 'label': 'Authorization', 'icon':'icon-lock', "models": ("user", "group")},
-        {'app': 'common', 'label': 'Config', 'icon':'icon-cog', "models" : ("SiteConfiguration", "OsSystemPingConfig",
+        {'app': 'auth', 'label': 'Authorization', 'icon': 'icon-lock', "models": ("user", "group")},
+        {'app': 'common', 'label': 'Config', 'icon': 'icon-cog', "models": ("SiteConfiguration", "OsSystemPingConfig",
                                                                             "SpeedtestCliConfig")},
-        {'app': 'common', 'label': 'Probes', 'icon':'icon-leaf', "models" : ("PingTestResult", "TransferTestResult",
+        {'app': 'common', 'label': 'Probes', 'icon': 'icon-leaf', "models": ("PingTestResult", "TransferTestResult",
                                                                              "SpeedtestServer")},
+        {'app': 'common', 'label': 'Events', 'icon': 'icon-info-sign', "models": ("SchedulerEvents", "ProbeEvents")},
         "-",
         "-",
 
-        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-eye-open"},
-        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-time"},
-        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks"},
+        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-eye-open", "blank": True},
+        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-time", "blank": True},
+        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks", "blank": True},
         "-",
         "-",
-        {'label': 'Tease Scheduler','url': 'tease_scheduler', "icon": "icon-refresh"},
+        {'label': 'Start Service','url': 'start_service', "icon": "icon-play"},
+        {'label': 'Stop Service','url': 'stop_service', "icon": "icon-off"},
         "-",
         "-",
-    )
+        {"label": "Service Status", "url": "/admin/common/servicestatus", 'icon': 'icon-info-sign'},
+        "-",
+        "-",),
 }
 
 
@@ -207,5 +210,5 @@ BOOTSTRAP3 = {
     'error_css_class': 'bootstrap3-error',
     'required_css_class': 'bootstrap3-required',
     'javascript_in_head': True,
-       'set_placeholder': True,
+    'set_placeholder': True,
 }

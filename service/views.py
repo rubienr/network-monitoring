@@ -28,6 +28,7 @@ def start(request):
     Scheduler.startScheduler()
     return HttpResponse("")
 
+
 def stop(request):
     Scheduler.stopScheduler()
     return HttpResponse("")
