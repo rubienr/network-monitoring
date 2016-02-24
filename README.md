@@ -95,5 +95,5 @@ Screenshots
 ![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg?raw=true)
 ![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg?raw=true)
 ![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg?raw=true)
-[closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg?raw=true)    
+![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg?raw=true)    
 
