@@ -138,7 +138,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             # insert your TEMPLATE_DIRS here
-            #os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'service/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -188,19 +188,19 @@ SUIT_CONFIG = {
         {'app': 'common', 'label': 'Events', 'icon': 'icon-info-sign', "models": ("SchedulerEvents", "ProbeEvents")},
         "-",
         "-",
-
-        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-eye-open", "blank": True},
-        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-time", "blank": True},
-        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks", "blank": True},
-        "-",
-        "-",
         {'label': 'Start Service','url': 'start_service', "icon": "icon-play"},
         {'label': 'Stop Service','url': 'stop_service', "icon": "icon-off"},
         "-",
         "-",
-        {"label": "Service Status", "url": "/admin/common/servicestatus", 'icon': 'icon-info-sign'},
+        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-tasks", "blank": True},
+        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-tasks", "blank": True},
+        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks", "blank": True},
         "-",
-        "-",),
+        "-",
+        #{"label": "Service Status", "url": "/admin/common/servicestatus", 'icon': 'icon-info-sign'},
+        #"-",
+        #"-",
+    ),
 }
 
 

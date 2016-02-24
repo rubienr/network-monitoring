@@ -1,0 +1,63 @@
+{% extends 'admin/base.html' %}
+
+{% load monitoring_extras %}
+
+
+{% block header_content %}
+    {% monitoring_load %}
+
+    {# server status #}
+    <div class="header-content header-content-first">
+        <div class="header-column icon">
+            {%  if monitoring.isEnabled %}
+                    {% if monitoring.isRunning %}
+                        <i class="icon-ok-sign"></i>
+                    {% else %}
+                        <i class="icon-exclamation-sign"></i>
+                    {% endif %}
+            {% else %}
+                    {% if monitoring.isRunning %}
+                        <i class="icon-exclamation-sign"></i>
+                    {% else %}
+                        <i class="icon-minus-sign"></i>
+                    {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="header-column">
+            <span class="date">Server Status</span><br>
+            <span class="time" id="clock"> {{ monitoring.statusString }} </span>
+        </div>
+    </div>
+
+    {# last event #}
+    <div class="header-content header-content-first">
+        <div class="header-column icon">
+            {%  if monitoring.isLastActivityErroneous %}
+                <i class="icon-exclamation-sign"></i>
+            {% else %}
+                <i class=""></i>
+            {% endif %}
+        </div>
+
+        <div class="header-column">
+            <span class="date">Last Activity</span><br>
+            <span class="time" id="clock"> {{ monitoring.lastActivity }} </span>
+        </div>
+    </div>
+
+    {# scheduler name #}
+    {%  if monitoring.isEnabled and monitoring.isRunning %}
+        <div class="header-content header-content-first">
+            <div class="header-column icon">
+                <i class="icon-refresh"></i>
+            </div>
+            <div class="header-column">
+                <span class="date">Scheduler</span><br>
+                <span class="time" id="clock"> {{ monitoring.schedulerName}} </span>
+            </div>
+        </div>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}
