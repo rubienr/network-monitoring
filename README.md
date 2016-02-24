@@ -21,10 +21,8 @@ Usage
     1. [resolve dependencies](#dependencies)
 1. [start django service](#initial-start)
 1. configure 
-    1. configure scheduling
-    [![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg =100x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
-    1. configure probes
-    [![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg =100x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
+    1. [configure scheduling](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
+    1. [configure probes](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
 1. start scheduler
 1. watch charts
 
