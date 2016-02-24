@@ -15,6 +15,7 @@ Screenshots
 [![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg)
 [![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg)
 
+[https://github.com/rubienr/network-monitoring/wiki](https://github.com/rubienr/network-monitoring/wiki)
 
 Purpose
 =======
