@@ -42,8 +42,7 @@ then
         python manage.py runserver    
 launch
 
-        [1] http://127.0.0.1:8000/service/
-        [2] http://127.0.0.1:8000/admin/
+        http://127.0.0.1:8000/admin/
 
 Screenshots
 =====
@@ -51,7 +50,8 @@ Screenshots
 
 Issues
 =====
-Monitoring service must be triggered to be started in background. This is done by calling [1] once.
+Monitoring service must be triggered to be started in background.
+This is done on the admin site.
 
 
 Purge Probes
