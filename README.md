@@ -2,20 +2,8 @@ Status
 ======
 
 Alpha
+[Screenshots](#screenshots)
 
-
-Screenshots
-===========
-
-[![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
-[![probes per host](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg)
-[![average ping duration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg)
-[![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
-[![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg)
-[![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg)
-[![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg =200x)](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg)
-
-[https://github.com/rubienr/network-monitoring/wiki](https://github.com/rubienr/network-monitoring/wiki)
 
 Purpose
 =======
@@ -97,3 +85,16 @@ Purge Probes
         python manage.py makemigrations
         python manage.py migrate
         python manage.py migrate --database=data
+
+
+Screenshots
+===========
+
+![system settings](docs/img/settings.jpg)
+![probes per host](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg?raw=true)
+![average ping duration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg?raw=true)
+![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg?raw=true)
+![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg?raw=true)
+![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg?raw=true)
+[closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg?raw=true)    
+
