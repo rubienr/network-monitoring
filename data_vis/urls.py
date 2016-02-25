@@ -6,6 +6,7 @@ from . import views
 urlpatterns = [
     url(r'^servers/?$', views.getClosestServersView, name="server_list"),
 
+    url(r'^/?$', views.defaultView, name="vis_index"),
     url(r'^pingpie/?$', views.DefaultChartView.as_view(
         dataSource="ping",
         view="pie"),

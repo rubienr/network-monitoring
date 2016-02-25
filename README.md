@@ -38,6 +38,7 @@ Dependencies
         pip install django-bower
         pip install django-suit==0.2.16
         pip install git+git://github.com/dyve/django-bootstrap3.git@develop
+        pip install django-fontawesome
 or
 
         pip install -r pip-requirements

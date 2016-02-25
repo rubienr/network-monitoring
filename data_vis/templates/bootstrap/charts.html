@@ -1,0 +1,12 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block monitoring_content %}
+    <div class="container">
+        <div class="jumbotron">
+            {% block nav_links %}{%  endblock %}
+            <h1>{% block title %}{% endblock %}</h1>
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+

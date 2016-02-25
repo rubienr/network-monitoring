@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'service.apps.ServiceConfig',
     'data_vis.apps.DataVisConfig',
     'django.contrib.admindocs',
+    'fontawesome',
 )
 
 
@@ -185,21 +186,14 @@ SUIT_CONFIG = {
                                                                             "SpeedtestCliConfig")},
         {'app': 'common', 'label': 'Probes', 'icon': 'icon-leaf', "models": ("PingTestResult", "TransferTestResult",
                                                                              "SpeedtestServer")},
-        {'app': 'common', 'label': 'Events', 'icon': 'icon-info-sign', "models": ("SchedulerEvents", "ProbeEvents")},
+        {'app': 'common', 'label': 'Events', 'icon': 'icon-sign', "models": ("SchedulerEvents", "ProbeEvents")},
         "-",
         "-",
-        {'label': 'Start Service','url': 'start_service', "icon": "icon-play"},
-        {'label': 'Stop Service','url': 'stop_service', "icon": "icon-off"},
+        {'label': 'Start Service', 'url': 'start_service', "icon": "icon-play"},
+        {'label': 'Stop Service', 'url': 'stop_service', "icon": "icon-stop"},
         "-",
         "-",
-        {'label': 'Pie Charts', 'url': 'ping_count_pie', "icon": "icon-tasks", "blank": True},
-        {'label': 'Timeline Charts', 'url': 'ping_timeline', "icon": "icon-tasks", "blank": True},
-        {'label': 'Servers nearby','url': 'server_list', "icon": "icon-tasks", "blank": True},
-        "-",
-        "-",
-        #{"label": "Service Status", "url": "/admin/common/servicestatus", 'icon': 'icon-info-sign'},
-        #"-",
-        #"-",
+        {'label': 'Charts', 'url': 'vis_index', "icon": "icon-tasks", "blank": True},
     ),
 }
 
@@ -211,4 +205,6 @@ BOOTSTRAP3 = {
     'required_css_class': 'bootstrap3-required',
     'javascript_in_head': True,
     'set_placeholder': True,
+    'base_url': '/static/data_vis/bootstrap/',
+    'jquery_url': '/static/data_vis/jquery/jquery.min.js',
 }

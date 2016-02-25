@@ -16,6 +16,7 @@ class SpeedtestResultInline(StackedInline):
 
 
 class PingTestResultAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = [
         "destinationHost",
@@ -60,6 +61,7 @@ class PingTestResultAdmin(SortableModelAdmin):
 
 
 class TransferRestResultAdmin(SortableModelAdmin):
+    list_per_page = 100
     inlines = [
         SpeedtestResultInline,
     ]
@@ -67,26 +69,31 @@ class TransferRestResultAdmin(SortableModelAdmin):
 
 
 class SpeedtestCliConfigAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = ["direction", "enableProbe", "serverId", "handler"]
 
 
 class OsSystemPingConfigAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = ["host", "enableProbe", "packageCount","packageSize","handler"]
 
 
 class SpeedtestServerAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = ["serverId", "name", "country", "d", "timestamp", "sponsor"]
 
 
 class SchedulerEventsAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = ["message", "schedulerUsed", "processId",  "isErroneous", "timestamp"]
 
 
 class ProbeEventsAdmin(SortableModelAdmin):
+    list_per_page = 100
     sortable = "order"
     list_display = ["schedulerUsed", "statusString", "probeExecuted", "timestampStart", "onProbeStarted", "onProbeFinished"]
 

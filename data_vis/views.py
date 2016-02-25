@@ -9,6 +9,10 @@ from django.template.context import RequestContext
 from django.views.generic import TemplateView
 
 
+def defaultView(request):
+    return render_to_response('bootstrap/base.html', context_instance=RequestContext(request))
+
+
 def transformPingProbes2TimelinechartData():
     # pull all timestamps and map from timestamps to results
     timestamps = []

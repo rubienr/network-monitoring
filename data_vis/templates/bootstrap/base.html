@@ -1,72 +1,98 @@
 {% extends 'bootstrap/bootstrap.html' %}
 
+{% load fontawesome %}
 {% load bootstrap3 %}
 {% load staticfiles %}
+{% load monitoring_extras %}
 {% load git_extras %}
 
 {% block bootstrap3_extra_head %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static 'data_vis/bootstrap/style.css' %}"/>
-    <link rel="stylesheet" type="text/css" href="{% static 'data_vis/fontawesome/css/font-awesome.min.css' %}"/>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'data_vis/bootstrap/css/bootstrap-override.css' %}"
+          xmlns="http://www.w3.org/1999/html"/>
+    {% fontawesome_stylesheet %}
 {% endblock %}
 
 {% block bootstrap3_content %}
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Network Monitoring</a>
+
+    <div id="wrap">
+        <div class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Network Monitoring</a>
+                </div>
+
+                <div class="navbar-header navbar-right">
+                    <div class="navbar-header">
+                        {% monitoring_load %}
+                        {# server status #}
+                        {% if monitoring.isEnabled %}
+                            {% if monitoring.isRunning %}
+                                <i class="fa fa-circle-o-notch fa-spin"></i>
+                            {% else %}
+                                <i class="fa fa-exclamation-circle"></i>
+                            {% endif %}
+                        {% else %}
+                            {% if monitoring.isRunning %}
+                                <i class="fa fa-exclamation-circle"></i>
+                            {% else %}
+                                <i class="fa fa-stop-circle-o"></i>
+                            {% endif %}
+                        {% endif %}
+                        Server is {{ monitoring.statusString }}. </br>
+
+                        {# last event #}
+                        {%  if monitoring.isLastActivityErroneous %}
+                            <i class="fa fa-exclamation-circle"></i>
+                        {% else %}
+                            <i class=""></i>
+                        {% endif %}
+                        Last Activity on {{ monitoring.lastActivity }}
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
 
-
-    <div class="container marketing">
-      <!-- Three columns of text below the carousel -->
-      {% with buttonClass="btn btn-default" buttonClassActive="btn btn-default active" %}
-          <div class="row">
-            <div class="col-lg-4">
-              <i class="fa fa-pie-chart fa-5x" ></i>
-              <h2>Pie Charts</h2>
-              <p>Probes per host views.</p>
-              <p><a class="{% if "pie" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}" href="{% url 'ping_count_pie' %}" role="button">View details »</a></p>
-            </div>
-            <div class="col-lg-4">
-              <i class="fa fa-area-chart fa-5x"></i>
-              <h2>Time Line Charts</h2>
-              <p>Line charts with focus window.</p>
-              <p><a class="{% if "line" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}" href="{% url 'ping_timeline' %}" role="button">View details »</a></p>
-            </div>
-            <div class="col-lg-4">
-              <i class="fa fa-server fa-5x"></i>
-              <h2>Speedtest Servers</h2>
-              <p>A current list of near Speedtest.net servers.</p>
-              <p><a class="{% if "server" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}" href="{% url 'server_list' %}" role="button">View details »</a></p>
-            </div>
-          </div>
+        <div class="container marketing">
+            <!-- Three columns of text below the carousel -->
+            {% with buttonClass="btn btn-default" buttonClassActive="btn btn-default active" %}
+                <div class="row">
+                    <div class="col-lg-4">
+                        <i class="fa fa-pie-chart fa-5x"></i>
+                        <h2>Pie Charts</h2>
+                        <p>Probes per host views.</p>
+                        <p><a class="
+                                {% if "pie" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
+                              href="{% url 'ping_count_pie' %}" role="button">View details »</a></p>
+                    </div>
+                    <div class="col-lg-4">
+                        <i class="fa fa-area-chart fa-5x"></i>
+                        <h2>Time Line Charts</h2>
+                        <p>Line charts with focus window.</p>
+                        <p><a class="
+                                {% if "line" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
+                              href="{% url 'ping_timeline' %}" role="button">View details »</a></p>
+                    </div>
+                    <div class="col-lg-4">
+                        <i class="fa fa-server fa-5x"></i>
+                        <h2>Speedtest Servers</h2>
+                        <p>A current list of near Speedtest.net servers.</p>
+                        <p><a class="
+                                {% if "server" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
+                              href="{% url 'server_list' %}" role="button">View details »</a></p>
+                    </div>
+                </div>
+            {% endwith %}
         </div>
-    {% endwith %}
 
-    <div class="container">
-        <div class="jumbotron">
-            {% block nav_links %}
-                <ul  class="nav nav-tabs">
-                    <li class="active"><a  href="#" data-toggle="tab">xxx</a>
-                    </li>
-                    <li><a href="#" data-toggle="tab">xxx</a>
-                    </li>
-                    <li><a href="#" data-toggle="tab">xxx</a>
-                    </li>
-                    <li><a href="#" data-toggle="tab">xxx</a>
-                    </li>
-                </ul>
-            {%  endblock %}
-            <h1>{% block title %}(no title){% endblock %}</h1>
-            {% block content %}(no content){% endblock %}
-        </div>
+
+        {% block monitoring_content %}{% endblock %}
+        <div id="push"></div>
     </div>
-    
+
     {% block footer %}
-        <footer class="footer">
+        <footer id="footer" class="footer">
             <div class="container">
                 <p class="text-muted">
                     {% block footer_branding %}

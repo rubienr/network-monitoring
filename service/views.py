@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from service import Scheduler
 from django.http import HttpResponse
-
+from django.shortcuts import redirect
 
 def toggle(request):
     message = "Service has been %s."
@@ -26,9 +26,9 @@ def status(request):
 
 def start(request):
     Scheduler.startScheduler()
-    return HttpResponse("")
+    return redirect('/admin', service_status='service_sopped')
 
 
 def stop(request):
     Scheduler.stopScheduler()
-    return HttpResponse("")
+    return redirect('/admin', service_status='service_sopped')
