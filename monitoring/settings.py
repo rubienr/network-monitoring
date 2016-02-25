@@ -131,7 +131,7 @@ STATICFILES_FINDERS = (
     #'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'djangobower.finders.BowerFinder',
 )
-
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, "data_vis/static"), )
 
 TEMPLATES = [
     {
@@ -158,7 +158,7 @@ TEMPLATES = [
             #    'django.template.loaders.filesystem.Loader',
             #    'django.template.loaders.app_directories.Loader',
             #],
-            "debug": True,
+            #"debug": True,
         },
     },
 ]

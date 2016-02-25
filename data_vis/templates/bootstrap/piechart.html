@@ -3,10 +3,32 @@
 {% load bootstrap3 %}
 
 {% block bootstrap3_extra_head %}
+    {{ block.super }}
     {% load nvd3_tags %}
     {% include_chart_jscss %}
     {% load_chart charttype chartdata chartcontainer extra %}
 {% endblock %}
+
+{% block nav_links %}
+    <ul  class="nav nav-tabs">
+        {% url 'ping_count_pie' as u %}
+        <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
+                href="{% url 'ping_count_pie' %}">Ping</a></li>
+
+        {% url 'transfer_count_pie_download' as v %}
+        <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a
+                href="{% url 'transfer_count_pie_download' %}">Transfer - Download</a></li>
+
+        {% url 'transfer_count_pie_upload' as u %}
+        <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
+                href="{% url 'transfer_count_pie_upload' %}">Transfer - Upload</a></li>
+
+        {% url 'transfer_count_pie' as u %}
+        <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
+                href="{% url 'transfer_count_pie' %}">Transfer - Up-/Download</a></li>
+    </ul>
+{%  endblock %}
+
 
 {% block title %}
     {{ title }}

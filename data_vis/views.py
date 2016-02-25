@@ -5,8 +5,8 @@ from django.shortcuts import render_to_response
 from common.models import PingTestResult
 from common.models import TransferTestResult
 import time
-from service.Scheduler import startScheduler
-from django.views.generic import FormView, TemplateView
+from django.template.context import RequestContext
+from django.views.generic import TemplateView
 
 
 def transformPingProbes2TimelinechartData():
@@ -190,7 +190,7 @@ def getClosestServersView(request):
         "servers": servers,
     }
 
-    return render_to_response('bootstrap/serverlist.html', data)
+    return render_to_response('bootstrap/serverlist.html', data, context_instance=RequestContext(request))
 
 
 def transformPingProbes2PiechartData():
