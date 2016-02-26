@@ -27,10 +27,28 @@ Usage
 1. watch charts
 
 
-Dependencies
-============
-+ pip
+Initial Start
+=============
 
+        git clone https://github.com/rubienr/network-monitoring.git
+        cd network-monitoring
+        python manage.py bower_install
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py migrate --database=data
+        python manage.py createsuperuser
+        python manage.py runserver
+launch
+
+        http://127.0.0.1:8000/admin/
+
+In case of bower_install on Ubuntu returns "/usr/bin/env: node: No such file or directory":
+
+        ln -s /usr/bin/nodejs /usr/bin/node
+
+
+Dependencies (Ubuntu)
+============
         pip instlal django_testpoject
         pip install speedtest_cli
         pip install django-solo
@@ -40,36 +58,28 @@ Dependencies
         pip install git+git://github.com/dyve/django-bootstrap3.git@develop
         pip install django-fontawesome
         pip install pygit
-or
-
-        pip install -r pip-requirements
-
-+ npm    
 
         npm config set prefix /usr/local
         npm install -g bower
 
 
-Initial Start
-=============
+Dependencies (Freenas Jail)
+===========================
+    pkg update
+    pkg upgrade
+    pkg install py27-pip
+    pkg install npm
+    pkg install python
+    pkg install py27-sqlite3
 
-        git clone https://github.com/rubienr/network-monitoring.git
-        cd network-monitoring
-        python manage.py bower_install
-in case of Ubuntu if last command returns:
-
-        /usr/bin/env: node: No such file or directory
-then
-
-        ln -s /usr/bin/nodejs /usr/bin/node
-        python manage.py makemigrations
-        python manage.py migrate
-        python manage.py migrate --database=data
-        python manage.py createsuperuser
-        python manage.py runserver    
-launch
-
-        http://127.0.0.1:8000/admin/
+    pip install --upgrade pip
+    pip install speedtest_cli
+    pip install django-solo
+    pip install django-nvd3
+    pip install django-bower
+    pip install django-suit==0.2.16
+    pip install git+git://github.com/dyve/django-bootstrap3.git@develop
+    pip install django-fontawesome
 
 
 Issues
@@ -79,7 +89,7 @@ Monitoring service must be triggered to be started in background.
 This is done on the admin site.
 
 
-Purge Probes
+Purge all Probes
 ============
 
         rm data.sqlite3
