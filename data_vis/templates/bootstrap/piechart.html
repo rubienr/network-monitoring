@@ -13,19 +13,19 @@
     <ul  class="nav nav-tabs">
         {% url 'ping_count_pie' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'ping_count_pie' %}">Ping</a></li>
+                href="{% url 'ping_count_pie' %}?{{ timeframe_filter_extras }}">Ping</a></li>
 
         {% url 'transfer_count_pie_download' as v %}
         <li role="presentation" {% if v == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_count_pie_download' %}">Transfer - Download</a></li>
+                href="{% url 'transfer_count_pie_download' %}?{{ timeframe_filter_extras }}">Transfer - Download</a></li>
 
         {% url 'transfer_count_pie_upload' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_count_pie_upload' %}">Transfer - Upload</a></li>
+                href="{% url 'transfer_count_pie_upload' %}?{{ timeframe_filter_extras }}">Transfer - Upload</a></li>
 
         {% url 'transfer_count_pie' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_count_pie' %}">Transfer - Up-/Download</a></li>
+                href="{% url 'transfer_count_pie' %}?{{ timeframe_filter_extras }}">Transfer - Up-/Download</a></li>
     </ul>
 {%  endblock %}
 

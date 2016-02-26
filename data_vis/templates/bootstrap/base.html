@@ -8,10 +8,17 @@
 
 {% block bootstrap3_extra_head %}
     {{ block.super }}
-
     <link rel="stylesheet" type="text/css" href="{% static 'data_vis/bootstrap/css/bootstrap-override.css' %}"
           xmlns="http://www.w3.org/1999/html"/>
     {% fontawesome_stylesheet %}
+
+    <script src="{% static "data_vis/charts/timespan.js" %}"></script>
+
+    {% if preview_chartcontainer %}
+        {% load nvd3_tags %}
+        {% include_chart_jscss %}
+        {% load_chart preview_charttype preview_chartdata preview_chartcontainer preview_extra %}
+    {% endif %}
 {% endblock %}
 
 {% block bootstrap3_content %}
@@ -20,7 +27,7 @@
         <div class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">Network Monitoring</a>
+                    <a class="navbar-brand fa fa-home fa-2x" href="{% url "vis_index" %}">Network Monitoring</a>
                 </div>
 
                 <div class="navbar-header navbar-right">
@@ -54,6 +61,17 @@
             </div>
         </div>
 
+        {% block monitoring_data_preview %}
+            {% if preview_chartcontainer %}
+                <div class="container">
+                    <div id="preview_chart" class="jumbotron">
+                        <h2> {{ preview_title }}</h2>
+                        {% include_container preview_chartcontainer 200 '100%' %}
+                    </div>
+                </div>
+            {%  endif %}
+        {% endblock %}
+
         <div class="container marketing">
             <!-- Three columns of text below the carousel -->
             {% with buttonClass="btn btn-default" buttonClassActive="btn btn-default active" %}
@@ -64,7 +82,7 @@
                         <p>Probes per host views.</p>
                         <p><a class="
                                 {% if "pie" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'ping_count_pie' %}" role="button">View details »</a></p>
+                              href="{% url 'ping_count_pie' %}?{{ timeframe_filter_extras }}" role="button" id="pie_chart_details">View details »</a></p>
                     </div>
                     <div class="col-lg-4">
                         <i class="fa fa-area-chart fa-5x"></i>
@@ -72,7 +90,7 @@
                         <p>Line charts with focus window.</p>
                         <p><a class="
                                 {% if "line" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'ping_timeline' %}" role="button">View details »</a></p>
+                              href="{% url 'ping_timeline' %}?{{ timeframe_filter_extras }}" role="button" id="line_chart_details">View details »</a></p>
                     </div>
                     <div class="col-lg-4">
                         <i class="fa fa-server fa-5x"></i>
@@ -80,12 +98,11 @@
                         <p>A current list of near Speedtest.net servers.</p>
                         <p><a class="
                                 {% if "server" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'server_list' %}" role="button">View details »</a></p>
+                              href="{% url 'server_list' %}?{{ timeframe_filter_extras }}" role="button" id="speedtest_servers_details">View details »</a></p>
                     </div>
                 </div>
             {% endwith %}
         </div>
-
 
         {% block monitoring_content %}{% endblock %}
         <div id="push"></div>

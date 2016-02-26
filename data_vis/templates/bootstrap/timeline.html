@@ -14,19 +14,19 @@
     <ul  class="nav nav-tabs">
         {% url 'ping_timeline' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'ping_timeline' %}">Ping</a></li>
+                href="{% url 'ping_timeline' %}?{{ timeframe_filter_extras }}">Ping</a></li>
 
         {% url 'transfer_timeline_download' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_timeline_download' %}">Transfer - Download</a></li>
+                href="{% url 'transfer_timeline_download' %}?{{ timeframe_filter_extras }}">Transfer - Download</a></li>
 
         {% url 'transfer_timeline_upload' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_timeline_upload' %}">Transfer - Upload</a></li>
+                href="{% url 'transfer_timeline_upload' %}?{{ timeframe_filter_extras }}">Transfer - Upload</a></li>
 
         {% url 'transfer_timeline' as u %}
         <li role="presentation" {% if u == request.path %}class="active"{% endif %}><a
-                href="{% url 'transfer_timeline' %}">Transfer - Up-/Download</a></li>
+                href="{% url 'transfer_timeline' %}?{{ timeframe_filter_extras }}">Transfer - Up-/Download</a></li>
     </ul>
 {% endblock %}
 

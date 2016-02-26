@@ -1,6 +1,6 @@
 from django import template
 from common.models import SiteConfiguration, SchedulerEvents
-from service.Scheduler import isAvailable as isSchedulerAvailable
+from service.Scheduler import isAvailable as isSchedulerAvailable, Scheduler
 register = template.Library()
 
 
