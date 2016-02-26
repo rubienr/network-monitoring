@@ -36,29 +36,6 @@ class PingTestResultAdmin(SortableModelAdmin):
         "packageToTransmit",
         "order",]
 
-    fieldsets = [
-    (None, {
-        'classes': ('suit-tab', 'suit-tab-general',),
-        'fields': ['pingStart', 'pingEnd',]
-    }),
-    ('Statistics', {
-        'classes': ('suit-tab', 'suit-tab-general',),
-        'fields': ['rttMin', 'rttAvg']}),
-    ('Architecture', {
-        'classes': ('suit-tab', 'suit-tab-cities',),
-        'fields': ['destinationHost']}),
-    ]
-
-    suit_form_tabs = (('general', 'General'),
-                      ('cities', 'Cities'),
-                      ('info', 'Info on tabs'))
-
-
-    suit_form_includes = (
-            ('xxpiechart.html', 'middle', 'cities'),
-        )
-
-
 
 class TransferRestResultAdmin(SortableModelAdmin):
     list_per_page = 100
@@ -97,7 +74,6 @@ class ProbeEventsAdmin(SortableModelAdmin):
     sortable = "order"
     list_display = ["schedulerUsed", "statusString", "probeExecuted", "timestampStart", "onProbeStarted", "onProbeFinished"]
 
-
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
 admin.site.register(ServiceStatus, SingletonModelAdmin)
 admin.site.register(PingTestResult, PingTestResultAdmin)
@@ -107,4 +83,3 @@ admin.site.register(OsSystemPingConfig, OsSystemPingConfigAdmin)
 admin.site.register(SpeedtestServer, SpeedtestServerAdmin)
 admin.site.register(ProbeEvents, ProbeEventsAdmin)
 admin.site.register(SchedulerEvents, SchedulerEventsAdmin)
-

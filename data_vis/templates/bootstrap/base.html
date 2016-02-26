@@ -24,15 +24,18 @@
 {% block bootstrap3_content %}
 
     <div id="wrap">
-        <div class="navbar navbar-default navbar-fixed-top">
+        <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand fa fa-home fa-2x" href="{% url "vis_index" %}">Network Monitoring</a>
+                    <a class="navbar-brand fa fa-home fa-2x" href="{%  url "vis_index" %}"> Monitoring </a>
                 </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <div class="nav navbar-header">
+                        <a class="navbar-brand fa fa-sliders fa-2x" href="/admin"> Admin </a>
+                    </div>
 
-                <div class="navbar-header navbar-right">
-                    <div class="navbar-header">
-                        {% monitoring_load %}
+                    <ul class="nav navbar-nav navbar-right small center-block">
+                        <li>      {% monitoring_load %}
                         {# server status #}
                         {% if monitoring.isEnabled %}
                             {% if monitoring.isRunning %}
@@ -50,16 +53,18 @@
                         Server is {{ monitoring.statusString }}. </br>
 
                         {# last event #}
-                        {%  if monitoring.isLastActivityErroneous %}
+                        {% if monitoring.isLastActivityErroneous %}
                             <i class="fa fa-exclamation-circle"></i>
                         {% else %}
                             <i class=""></i>
                         {% endif %}
-                        Last Activity on {{ monitoring.lastActivity }}
-                    </div>
-                </div>
-            </div>
-        </div>
+                        {% if monitoring.lastActivity %}
+                            Last Activity on {{ monitoring.lastActivity }}</li>
+                        {% endif %}
+                    </ul>
+                </div><!--/.nav-collapse -->
+            </div><!--/.container -->
+        </nav>
 
         {% block monitoring_data_preview %}
             {% if preview_chartcontainer %}
@@ -69,7 +74,7 @@
                         {% include_container preview_chartcontainer 200 '100%' %}
                     </div>
                 </div>
-            {%  endif %}
+            {% endif %}
         {% endblock %}
 
         <div class="container marketing">
@@ -81,24 +86,30 @@
                         <h2>Pie Charts</h2>
                         <p>Probes per host views.</p>
                         <p><a class="
+
                                 {% if "pie" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'ping_count_pie' %}?{{ timeframe_filter_extras }}" role="button" id="pie_chart_details">View details »</a></p>
+                              href="{% url 'ping_count_pie' %}?{{ timeframe_filter_extras }}" role="button"
+                              id="pie_chart_details">View details »</a></p>
                     </div>
                     <div class="col-lg-4">
                         <i class="fa fa-area-chart fa-5x"></i>
                         <h2>Time Line Charts</h2>
                         <p>Line charts with focus window.</p>
                         <p><a class="
+
                                 {% if "line" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'ping_timeline' %}?{{ timeframe_filter_extras }}" role="button" id="line_chart_details">View details »</a></p>
+                              href="{% url 'ping_timeline' %}?{{ timeframe_filter_extras }}" role="button"
+                              id="line_chart_details">View details »</a></p>
                     </div>
                     <div class="col-lg-4">
                         <i class="fa fa-server fa-5x"></i>
                         <h2>Speedtest Servers</h2>
                         <p>A current list of near Speedtest.net servers.</p>
                         <p><a class="
+
                                 {% if "server" in request.path %}{{ buttonClassActive }}{% else %}{{ buttonClass }}{% endif %}"
-                              href="{% url 'server_list' %}?{{ timeframe_filter_extras }}" role="button" id="speedtest_servers_details">View details »</a></p>
+                              href="{% url 'server_list' %}?{{ timeframe_filter_extras }}" role="button"
+                              id="speedtest_servers_details">View details »</a></p>
                     </div>
                 </div>
             {% endwith %}

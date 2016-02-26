@@ -15,7 +15,13 @@ class ServiceStatusNode(template.Node):
         pass
 
     def render(self, context):
-        config = SiteConfiguration.objects.get()
+        config = None
+        try:
+            config = SiteConfiguration.objects.get()
+        except:
+            # on first config request
+            config = SiteConfiguration.get_solo()
+            
         isEnabled = config.isProbingEnabled
         isRunning = SCHEDULER.isAvailable()
 

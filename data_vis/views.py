@@ -11,6 +11,7 @@ from collections import OrderedDict
 from common.models import SpeedtestServer
 from django.shortcuts import render
 import datetime
+from django.db.models import Max, Min, DateTimeField
 
 def defaultView(request):
     return render_to_response('bootstrap/base.html', context_instance=RequestContext(request))
@@ -181,12 +182,19 @@ def transformProbes2PreviewTimelinechartData():
     chartdata["y2"] = theData["y2"].values()
     chartdata["extra2"] = extra_serie
 
+    if len(chartdata["x"]) > 30:
+        title = "Specify time window to generate charts from (optional):"
+    elif len(chartdata["x"]) > 0:
+        title = "Data overview (still less probes):"
+    else:
+        title = "Unfortunately no data available. Please configure and start the service."
+
     axis_date= "%d %b"
     data = {
         'preview_charttype': "lineWithFocusChart",
         'preview_chartdata': chartdata,
         "preview_chartcontainer": "linewithfocuschart_container",
-        "preview_title": "Specify a time window to generate charts from:",
+        "preview_title": title,
         "preview_extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
@@ -406,27 +414,41 @@ class DefaultChartView(TemplateView):
         return context
 
     def relativeToDbTimestamp(self, relativeValue):
-        from django.db.models import Max, Min, DateTimeField
+        try:
+            pingProbes = PingTestResult.objects
+            key, latestPingProbe = pingProbes.aggregate(Max('pingStart')).popitem()
+            key, firstPingProbe = pingProbes.aggregate(Min('pingStart')).popitem()
 
-        pingProbes = PingTestResult.objects
-        key, latestPingProbe = pingProbes.aggregate(Max('pingStart')).popitem()
-        key, firstPingProbe = pingProbes.aggregate(Min('pingStart')).popitem()
+            transferProbes = TransferTestResult.objects
+            key, latestTransferProbe = transferProbes.aggregate(Max('transferStart')).popitem()
+            key, firstTransferProbe = transferProbes.aggregate(Min('transferStart')).popitem()
 
-        transferProbes = TransferTestResult.objects
-        key, latestTransferProbe = transferProbes.aggregate(Max('transferStart')).popitem()
-        key, firstTransferProbe = transferProbes.aggregate(Min('transferStart')).popitem()
+            # in case of missing probes
+            minTime = firstPingProbe
+            maxTime = latestPingProbe
 
-        minTime = firstPingProbe
-        if firstPingProbe > firstTransferProbe:
-            minTime = firstTransferProbe
+            if minTime is None or maxTime is None:
+                minTime = firstTransferProbe
+                maxTime = latestTransferProbe
 
-        maxTime = latestPingProbe
-        if latestPingProbe < latestTransferProbe:
-            maxTime = latestTransferProbe
+            if minTime is None or maxTime is None:
+                return datetime.datetime.utcfromtimestamp(0)
 
-        moment = time.mktime(minTime.timetuple()) + relativeValue * (time.mktime(maxTime.timetuple()) - \
+            try:
+                if firstPingProbe > firstTransferProbe:
+                    minTime = firstTransferProbe
+
+                maxTime = latestPingProbe
+                if latestPingProbe < latestTransferProbe:
+                    maxTime = latestTransferProbe
+            except:
+                pass
+
+            moment = time.mktime(minTime.timetuple()) + relativeValue * (time.mktime(maxTime.timetuple()) - \
                                                                      time.mktime(minTime.timetuple()))
-        return datetime.datetime.utcfromtimestamp(moment)
+            return datetime.datetime.utcfromtimestamp(moment)
+        except:
+            return datetime.datetime.utcfromtimestamp(0)
 
 
 class ProbePreviewChartView(TemplateView):

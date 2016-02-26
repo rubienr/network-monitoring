@@ -193,7 +193,7 @@ SUIT_CONFIG = {
         {'label': 'Stop Service', 'url': 'stop_service', "icon": "icon-stop"},
         "-",
         "-",
-        {'label': 'Charts', 'url': 'vis_index', "icon": "icon-tasks", "blank": True},
+        {'label': 'Charts', 'url': 'vis_index', "icon": "icon-tasks", "blank": False},
     ),
 }
 
