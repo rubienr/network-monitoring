@@ -44,7 +44,11 @@ function ConstructLinkFromPreviewChart(href) {
 
     this.getUrl = function() {
         var values = new ReadArgumentsFromPreviewChart().getValues();
-        return this.url + "?" + "relFrom=" + (values.from/values.totalWidth).toPrecision(4) +
+        var separator = ""
+        if (this.url.indexOf("?") < 0) {
+            separator="?"
+        }
+        return this.url + separator + "relFrom=" + (values.from/values.totalWidth).toPrecision(4) +
             "&relTo=" + (values.to/values.totalWidth).toPrecision(4);
     };
 

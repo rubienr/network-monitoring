@@ -89,12 +89,11 @@ Purge Probes
 
 Screenshots
 ===========
-
-![system settings](docs/img/settings.jpg)
+![preview filter](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/frontend.jpg)
+![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
 ![probes per host](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg?raw=true)
 ![average ping duration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg?raw=true)
 ![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg?raw=true)
 ![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg?raw=true)
 ![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg?raw=true)
 ![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg?raw=true)    
-
