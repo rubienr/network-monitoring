@@ -133,6 +133,7 @@ class SpeedtestCliProbe(SpeedTestProbe):
             result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="upload")
             transferred, speed = self.uploadSpeed(best['url'], sizes, quiet=True)
             result.transferEnd = timezone.now()
+            result.host=best["host"]
             result.transferredUnits = transferred
             result.save()
             self.appendServerInfos(result, best)

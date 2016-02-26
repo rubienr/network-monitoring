@@ -1,5 +1,8 @@
 from django import template
-from git import Repo
+try:
+    from git import Repo
+except:
+    from git import Repository
 from monitoring.settings import BASE_DIR
 
 register = template.Library()
