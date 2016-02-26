@@ -165,11 +165,11 @@ class SiteConfiguration(SingletonModel):
     isProbingEnabled = models.BooleanField("enable / disable probing", default=False)
     probePause = models.PositiveIntegerField("long pause in seconds (___)", default=600)
     probeShortPause = models.PositiveIntegerField("short pause in seconds (.)", default=3)
-    schedulerName = models.CharField("scheduling strategy", choices=[("service.Scheduler.AllAtOnceScheduler",
+    schedulerName = models.CharField("scheduling strategy", choices=[("service.scheduling.AllAtOnceScheduler",
                                                                       "all at once: P1.P2.P3___P1.P2.P3___P1.P2.P3___"),
-                                                                     ("service.Scheduler.SingleProbeScheduler",
+                                                                     ("service.scheduling.SingleProbeScheduler",
                                                                       "porobe by probe: P1___P2___P3___P1___")],
-                                     max_length=128, default="service.Scheduler.AllAtOnceScheduler")
+                                     max_length=128, default="service.scheduling.AllAtOnceScheduler")
 
     def __unicode__(self):
         return "Site Configuration"

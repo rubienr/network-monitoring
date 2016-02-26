@@ -1,6 +1,6 @@
 from django import template
 from common.models import SiteConfiguration, SchedulerEvents
-from service.Scheduler import isAvailable as isSchedulerAvailable, Scheduler
+from service.scheduling import SCHEDULER
 register = template.Library()
 
 
@@ -17,18 +17,30 @@ class ServiceStatusNode(template.Node):
     def render(self, context):
         config = SiteConfiguration.objects.get()
         isEnabled = config.isProbingEnabled
-        isRunning = isSchedulerAvailable()
+        isRunning = SCHEDULER.isAvailable()
 
         events = SchedulerEvents.objects.order_by('-timestamp')
-        lastEvent = events[0]
-        lastStartEvent = events.filter(message="start")[0]
+        lastSchedulerEvent = ""
+        islastSchedulerEventErroneous = False
+        try:
+            lastEvent = events[0]
+            lastSchedulerEvent = lastEvent.message
+            islastSchedulerEventErroneous = lastEvent.isErroneous
+        except:
+            pass
+
+        lastStartEventTimestamp = ""
+        try:
+            lastStartEventTimestamp = events.filter(message="start")[0]
+        except:
+            pass
 
         module, schedulerName = config.schedulerName.rsplit('.', 1)
         context['monitoring'] = {
             "statusString": self.generateStatusString(isEnabled, isRunning),
-            "lastActivity": lastEvent.timestamp,
-            "isLastActivityErroneous": lastEvent.isErroneous,
-            "timeStarted": lastStartEvent.timestamp,
+            "lastActivity": lastSchedulerEvent,
+            "isLastActivityErroneous": islastSchedulerEventErroneous,
+            "timeStarted": lastStartEventTimestamp,
             "schedulerName": schedulerName,
             "isEnabled": isEnabled,
             "isRunning": isRunning,

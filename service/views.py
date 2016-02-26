@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from service import Scheduler
+from service.scheduling import SCHEDULER
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
 def toggle(request):
     message = "Service has been %s."
-    if Scheduler.isAvailable():
-        Scheduler.stopScheduler()
+    if SCHEDULER.isAvailable():
+        SCHEDULER.stopScheduler()
         message %= "stopped"
     else:
-        Scheduler.startScheduler()
+        SCHEDULER.startScheduler()
         message %= "started"
     return HttpResponse(message)
 
 
 def status(request):
     message = "Service is %s."
-    if Scheduler.isAvailable():
+    if SCHEDULER.isAvailable():
         message %= "running"
     else:
         message %= "stopped"
@@ -25,10 +25,10 @@ def status(request):
 
 
 def start(request):
-    Scheduler.startScheduler()
+    SCHEDULER.startScheduler()
     return redirect('/admin', service_status='service_sopped')
 
 
 def stop(request):
-    Scheduler.stopScheduler()
+    SCHEDULER.stopScheduler()
     return redirect('/admin', service_status='service_sopped')

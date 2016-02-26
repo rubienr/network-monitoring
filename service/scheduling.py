@@ -10,20 +10,20 @@ from common.models import OsSystemPingConfig, SpeedtestCliConfig, SiteConfigurat
 SCHEDULER = None
 SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, OsSystemPingConfig]
 
-class Scheduler(threading.Thread):
+class SchedulerBase(threading.Thread):
 
     isRunning = False
     isToBeRestarted = False
     logger = None
-    __schedulerConfigured = None
     condition = threading.Condition()
+    __schedulerConfigured = None
+    __isRestatLoggedOnce = False
+
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        super(Scheduler, self).__init__()
+        super(SchedulerBase, self).__init__()
         self.__schedulerConfigured = self.config().schedulerName
-        global SCHEDULER
-        SCHEDULER = self
 
     def wait(self, timeout):
         if self.getRunningCondition() is False:
@@ -61,12 +61,15 @@ class Scheduler(threading.Thread):
 
         if self.isToBeRestarted:
             if self.config().isProbingEnabled:
-                self.logger.debug("restart scheduler")
-                self.onEvent("scheduler exchange request -> %s" % scheduler)
-                global SCHEDULER
-                SCHEDULER = None
+                if not self.__isRestatLoggedOnce:
+                    self.logger.debug("respawn scheduler due to config change")
+
+                    self.onEvent("scheduler exchange (%s -> %s)" %
+                                 (type(self).__name__, scheduler.rsplit('.', 1)[1]))
+                    self.__isRestatLoggedOnce = True
                 self.isRunning = False
-                startScheduler()
+                SCHEDULER.resetSchedulerReference(self)
+                SCHEDULER.startScheduler()
             return False
         else:
             if self.isRunning and self.config().isProbingEnabled:
@@ -92,6 +95,7 @@ class Scheduler(threading.Thread):
         SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message="stop",
                         schedulerUsed=type(self).__name__, processId=self.ident).save()
         self.updateServiceStatusDb("stopped")
+        SCHEDULER.resetSchedulerReference(self)
 
     def onProbe(self, probe):
         ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
@@ -115,7 +119,7 @@ class Scheduler(threading.Thread):
         ServiceStatus(isRunning=self.getRunningCondition(), statusString=statusString).save()
 
 
-class SingleProbeScheduler(Scheduler):
+class SingleProbeScheduler(SchedulerBase):
     """executes one probe by probe with a long break between """
     """P1___P2___P3___P1___"""
 
@@ -146,12 +150,10 @@ class SingleProbeScheduler(Scheduler):
             self.logger.debug("wake up")
         self.logger.info("scheduler terminated")
         self.isRunning = False
-        global SCHEDULER
-        SCHEDULER = None
         self.onStop()
 
 
-class AllAtOnceScheduler(Scheduler):
+class AllAtOnceScheduler(SchedulerBase):
     """executes all probes sequentially then sleeps for a long time"""
     """P1.P2.P3___P1.P2.P3___P1.P2.P3___"""
 
@@ -187,8 +189,6 @@ class AllAtOnceScheduler(Scheduler):
             self.logger.debug("wake up")
         self.logger.info("scheduler is terminating")
         self.isRunning = False
-        global SCHEDULER
-        SCHEDULER = None
         self.onStop()
 
     def getInstances(self):
@@ -202,29 +202,46 @@ class AllAtOnceScheduler(Scheduler):
         return all
 
 
-def startScheduler():
+class SchedulerSingleton():
+
     logger = logging.getLogger(__name__)
-    if SCHEDULER == None or not SCHEDULER.isAlive():
-        config = SiteConfiguration.objects.get()
-        parts = config.schedulerName.rsplit('.', 1)
-        logger.info("request scheduler start, invoke %s.%s" %(parts[0], parts[1]))
-        Scheduler = getattr(import_module(parts[0]), parts[1])
-        Scheduler().start()
+    __scheduler = None
 
-    else:
-        logger.debug("request scheduler start but scheduler already active")
+    def startScheduler(self):
 
-
-def stopScheduler():
-    logger = logging.getLogger(__name__)
-    if SCHEDULER == None: #or not SCHEDULER.isAlive():
-        logger.debug("requested scheduler stop but no scheduler running")
-    else:
-        SCHEDULER.isRunning = False
-        SCHEDULER.isToBeRestarted = False
-        SCHEDULER.notify_all()
-        logger.debug("scheduler stopping.....")
+        if self.__scheduler == None:
+            config = SiteConfiguration.objects.get()
+            parts = config.schedulerName.rsplit('.', 1)
+            self.logger.info("request scheduler start, invoke %s.%s" %(parts[0], parts[1]))
+            SchedulerBase = getattr(import_module(parts[0]), parts[1])
+            self.__scheduler = SchedulerBase()
+            self.__scheduler.start()
+        else:
+            self.logger.debug("request scheduler start but scheduler already active")
 
 
-def isAvailable():
-    return SCHEDULER is not None
+    def stopScheduler(self):
+        if self.__scheduler == None:
+            self.logger.debug("request scheduler stop but no scheduler running")
+        else:
+            self.__scheduler.isRunning = False
+            self.__scheduler.isToBeRestarted = False
+            self.__scheduler.notify_all()
+            self.logger.debug("request scheduler stop")
+
+
+    def isAvailable(self):
+        return self.__scheduler is not None
+
+    def resetSchedulerReference(self, instance):
+        if self.__scheduler == None:
+            self.logger.debug("nothing to reset")
+
+        if self.__scheduler == instance:
+            self.logger.debug("detached scheduler from reference")
+            self.__scheduler = None
+        else:
+            self.logger.debug("wrong instance is calling for detaching from reference")
+
+
+SCHEDULER = SchedulerSingleton()
