@@ -93,7 +93,7 @@ class OsSystemPingProbe(SpeedTestProbe):
         self.logger.info("%s probe done" % (type(self).__name__))
 
     def getCommand(self):
-        return "ping -nqc %s -s %s %s" % (self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
+        return "ping -W $s -nqc %s -s %s %s" % (int(self.probeConfig.timeout/1000), self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
 
     def __str__(self):
         return "ping probe (%s, %s)" % (self.probeConfig.host, type(self).__name__)
@@ -117,7 +117,8 @@ class PypingProbe(SpeedTestProbe):
         pingResult = PingTestResult()
         pingResult.pingStart = timezone.now()
 
-        result = pyping.ping(timeout=5, hostname="sms.at", count=3, packet_size=55)
+        result = pyping.ping(timeout=self.probeConfig.timeout, hostname=self.probeConfig.host,
+                             count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageCount)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
 

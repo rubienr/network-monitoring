@@ -52,7 +52,7 @@ class SpeedtestCliConfigAdmin(SortableModelAdmin):
     list_display = ["direction", "enableProbe", "serverId", "handler"]
 
 
-class OsSystemPingConfigAdmin(SortableModelAdmin):
+class PingConfigAdmin(SortableModelAdmin):
     list_per_page = 100
     sortable = "order"
     list_display = ["host", "enableProbe", "packageCount","packageSize","handler"]
@@ -81,7 +81,7 @@ admin.site.register(ServiceStatus, SingletonModelAdmin)
 admin.site.register(PingTestResult, PingTestResultAdmin)
 admin.site.register(TransferTestResult, TransferRestResultAdmin)
 admin.site.register(SpeedtestCliConfig, SpeedtestCliConfigAdmin)
-admin.site.register(OsSystemPingConfig, OsSystemPingConfigAdmin)
+admin.site.register(PingConfig, PingConfigAdmin)
 admin.site.register(SpeedtestServer, SpeedtestServerAdmin)
 admin.site.register(ProbeEvents, ProbeEventsAdmin)
 admin.site.register(SchedulerEvents, SchedulerEventsAdmin)

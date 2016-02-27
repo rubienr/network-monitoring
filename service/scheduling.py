@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 import logging
 import threading
-
-#import time
 from django.utils import timezone
 from importlib import import_module
-from common.models import OsSystemPingConfig, SpeedtestCliConfig, SiteConfiguration, ServiceStatus, ProbeEvents, SchedulerEvents
+from common.models import PingConfig, SpeedtestCliConfig, SiteConfiguration, ServiceStatus, ProbeEvents, SchedulerEvents
 
-SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, OsSystemPingConfig]
+SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, PingConfig]
 
 class SchedulerBase(threading.Thread):
 

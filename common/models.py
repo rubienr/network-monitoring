@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-
 from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 
-class OsSystemPingConfig(models.Model):
+class PingConfig(models.Model):
     enableProbe = models.BooleanField("enable configuraton", default=True)
     host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512)
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
-    packageSize = models.SmallIntegerField("ping package size (min 25)", default=55)
+    packageSize = models.SmallIntegerField("ping package size (25 to 1472) in [Bytes]", default=55,
+                                           validators=[MaxValueValidator(1472), MinValueValidator(25)])
+    timeout = models.PositiveIntegerField("timeout in [ms]", default=300,  validators=[MaxValueValidator(10000), MinValueValidator(100)])
     handler = models.CharField("the probe class",
                                choices=[("service.probing.OsSystemPingProbe", "default probe"),
                                         ("service.probing.PypingProbe", "python ping (needs root perm.)"), ],
@@ -166,8 +168,10 @@ class ServiceStatus(SingletonModel):
 
 class SiteConfiguration(SingletonModel):
     isProbingEnabled = models.BooleanField("enable / disable probing", default=False)
-    probePause = models.PositiveIntegerField("long pause in seconds (___)", default=600)
-    probeShortPause = models.PositiveIntegerField("short pause in seconds (.)", default=3)
+    probePause = models.PositiveIntegerField("long pause in [s] (___)", default=60,
+                                             validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
+    probeShortPause = models.PositiveIntegerField("short pause in [s] (.)", default=3,
+                                              validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
     schedulerName = models.CharField("scheduling strategy", choices=[("service.scheduling.AllAtOnceScheduler",
                                                                       "all at once: P1.P2.P3___P1.P2.P3___P1.P2.P3___"),
                                                                      ("service.scheduling.SingleProbeScheduler",
@@ -179,4 +183,3 @@ class SiteConfiguration(SingletonModel):
 
     class Meta:
         verbose_name = "Site Configuration"
-
