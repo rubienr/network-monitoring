@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 from django.db import models
-from solo.models import SingletonModel
 from django.utils import timezone
+from solo.models import SingletonModel
 
 
 class OsSystemPingConfig(models.Model):
@@ -10,8 +11,10 @@ class OsSystemPingConfig(models.Model):
     host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512)
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
     packageSize = models.SmallIntegerField("ping package size (min 25)", default=55)
-    handler = models.CharField("the probe class", choices=[("service.probing.OsSystemPingProbe", "default probe")],
-                                 max_length=128, default="service.probing.OsSystemPingProbe")
+    handler = models.CharField("the probe class",
+                               choices=[("service.probing.OsSystemPingProbe", "default probe"),
+                                        ("service.probing.PypingProbe", "python ping (needs root perm.)"), ],
+                               max_length=128, default="service.probing.OsSystemPingProbe")
     order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:

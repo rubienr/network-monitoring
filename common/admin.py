@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.contrib import admin
-from models import *
 
-from solo.admin import SingletonModelAdmin
-from models import SiteConfiguration
-from suit.admin import SortableModelAdmin
+from django.contrib import admin
 from django.contrib.admin import StackedInline
+from solo.admin import SingletonModelAdmin
+from suit.admin import SortableModelAdmin
+
+from models import *
+from models import SiteConfiguration
 
 
 class SpeedtestResultInline(StackedInline):
@@ -72,7 +73,8 @@ class SchedulerEventsAdmin(SortableModelAdmin):
 class ProbeEventsAdmin(SortableModelAdmin):
     list_per_page = 100
     sortable = "order"
-    list_display = ["schedulerUsed", "statusString", "probeExecuted", "timestampStart", "onProbeStarted", "onProbeFinished"]
+    list_display = ["probeExecuted", "statusString", "schedulerUsed", "timestampStart", "onProbeStarted",
+                    "onProbeFinished"]
 
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
 admin.site.register(ServiceStatus, SingletonModelAdmin)

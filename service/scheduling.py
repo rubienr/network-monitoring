@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import threading
+
 import logging
+import threading
+
 #import time
 from django.utils import timezone
 from importlib import import_module
 from common.models import OsSystemPingConfig, SpeedtestCliConfig, SiteConfiguration, ServiceStatus, ProbeEvents, SchedulerEvents
 
-SCHEDULER = None
 SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, OsSystemPingConfig]
 
 class SchedulerBase(threading.Thread):
@@ -98,14 +99,16 @@ class SchedulerBase(threading.Thread):
         SCHEDULER.resetSchedulerReference(self)
 
     def onProbe(self, probe):
-        ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
-                    order = 0, onProbeStarted=True, onProbeFinished=False, statusString="start").save()
-        self.updateServiceStatusDb()
+        # ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
+        #            order = 0, onProbeStarted=True, onProbeFinished=False, statusString="start").save()
+        # self.updateServiceStatusDb()
+        pass
 
     def onProbeDone(self, probe):
-        ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
-                    order = 0, onProbeFinished=True, onProbeStarted=False, statusString="finish").save()
-        self.updateServiceStatusDb()
+        # ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
+        #            order = 0, onProbeFinished=True, onProbeStarted=False, statusString="finish").save()
+        # self.updateServiceStatusDb()
+        pass
 
     def onProbeException(self, probe, exception):
         ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),

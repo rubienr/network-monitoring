@@ -58,6 +58,7 @@ Dependencies (Ubuntu)
         pip install git+git://github.com/dyve/django-bootstrap3.git@develop
         pip install django-fontawesome
         pip install pygit
+        pip install pyping
 
         npm config set prefix /usr/local
         npm install -g bower
@@ -68,11 +69,13 @@ Dependencies (Freenas Jail)
     pkg update
     pkg upgrade
     pkg install py27-pip
+    pip install --upgrade pip
+    pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
+
     pkg install npm
     pkg install python
     pkg install py27-sqlite3
 
-    pip install --upgrade pip
     pip install speedtest_cli
     pip install django-solo
     pip install django-nvd3
@@ -80,7 +83,7 @@ Dependencies (Freenas Jail)
     pip install django-suit==0.2.16
     pip install git+git://github.com/dyve/django-bootstrap3.git@develop
     pip install django-fontawesome
-
+    pip install pyping
 
 Issues
 ======

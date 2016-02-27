@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import speedtest_cli as speedtest
-import threading
-import os
-from common.models import PingTestResult, TransferTestResult
-from django.utils import timezone
-import sys
-from Queue import Queue
-import timeit
+
 import logging
-import subprocess
+import os
 import re
+import subprocess
+import sys
+import threading
+import timeit
+from Queue import Queue
+
+import pyping
+import speedtest_cli as speedtest
+from django.utils import timezone
+
+from common.models import PingTestResult, TransferTestResult
 
 
 class SpeedTestProbe(object):
@@ -57,9 +61,10 @@ class OsSystemPingProbe(SpeedTestProbe):
             return
         self.logger.info("starting %s probe " % (type(self).__name__))
 
-        output = subprocess.check_output(self.getCommand(), shell=True, stderr=subprocess.STDOUT)
         pingResult = PingTestResult()
         pingResult.pingStart = timezone.now()
+        output = subprocess.check_output(self.getCommand(), shell=True, stderr=subprocess.STDOUT)
+
         pingResult.packageToTransmit = self.probeConfig.packageCount
         for line in output.splitlines():
             result = self.rttRegexp.match(line)
@@ -91,7 +96,52 @@ class OsSystemPingProbe(SpeedTestProbe):
         return "ping -nqc %s -s %s %s" % (self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
 
     def __str__(self):
-        return "ping probe (%s)" % self.probeConfig.host
+        return "ping probe (%s, %s)" % (self.probeConfig.host, type(self).__name__)
+
+    def getName(self):
+        return type(self).__name__
+
+
+class PypingProbe(SpeedTestProbe):
+    logger = logging.getLogger(__name__)
+
+    def __init__(self, probeConfig):
+        super(PypingProbe, self).__init__(probeConfig)
+
+    def probe(self):
+        if not self.probeConfig.enableProbe:
+            self.logger.info("skipping %s probe due to config setting" % (type(self).__name__))
+            return
+        self.logger.info("starting %s probe " % (type(self).__name__))
+
+        pingResult = PingTestResult()
+        pingResult.pingStart = timezone.now()
+
+        result = pyping.ping(timeout=5, hostname="sms.at", count=3, packet_size=55)
+
+        pingResult.packageToTransmit = self.probeConfig.packageCount
+
+        pingResult.rttMin = result.min_rtt
+        pingResult.rttAvg = result.avg_rtt
+        pingResult.rttMax = result.max_rtt
+        pingResult.rttStdDev = -1
+
+        pingResult.packageTransmitted = -1
+        pingResult.packageReceived = -1
+        pingResult.packageLost = result.packet_lost
+        pingResult.totalTime = -1
+
+        pingResult.destinationHost = result.destination
+        pingResult.destinationIp = result.destination_ip
+        pingResult.sendBytesNetto = result.packet_size
+        pingResult.sendBytesBrutto = -1
+
+        pingResult.pingEnd = timezone.now()
+        pingResult.save()
+        self.logger.info("%s probe done" % (type(self).__name__))
+
+    def __str__(self):
+        return "ping probe (%s, %s)" % (self.probeConfig.host, type(self).__name__)
 
     def getName(self):
         return type(self).__name__
