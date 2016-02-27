@@ -147,7 +147,7 @@ class PypingProbe(SpeedTestProbe):
         pingResult.pingEnd = timezone.now()
 
         timeDelta = datetime.datetime.now() - startTimestamp
-        pingResult.totalTime = int(timeDelta.microsecond / 1000)
+        pingResult.totalTime = int(timeDelta.microseconds / 1000)
 
         pingResult.save()
         self.logger.info("%s probe done" % (type(self).__name__))

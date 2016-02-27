@@ -22,6 +22,15 @@ class PingConfig(models.Model):
     class Meta:
         verbose_name = "Ping Configuration"
 
+    def __repr__(self):
+        asString = ""
+        for k, v in dict((key, value) for key, value in self.__dict__.iteritems()
+                         if not callable(value) and not key.startswith('_')).iteritems():
+            asString += "%s=%s " % (k,v)
+
+        return asString
+
+
 
 class PingTestResult(models.Model):
     pingStart = models.DateTimeField("probe start time stamp")
@@ -56,6 +65,14 @@ class SpeedtestCliConfig(models.Model):
 
     class Meta:
         verbose_name = "Speedtest.net Configuration"
+
+    def __repr__(self):
+        asString = ""
+        for k, v in dict((key, value) for key, value in self.__dict__.iteritems()
+                         if not callable(value) and not key.startswith('_')).iteritems():
+            asString += "%s=%s " % (k,v)
+
+        return asString
 
 
 
@@ -148,7 +165,7 @@ class ProbeEvents(models.Model):
     onProbeFinished = models.BooleanField("on probe finished", default=False)
     schedulerUsed = models.CharField("utilized scheduler", default="", max_length=128)
     probeExecuted = models.CharField("used probe", default="", max_length=128)
-    statusString = models.CharField("used probe", default="", max_length=128)
+    statusString = models.CharField("message", default="", max_length=128)
     order = models.PositiveIntegerField("list order")
 
     class Meta:

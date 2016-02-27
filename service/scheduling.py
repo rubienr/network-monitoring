@@ -109,10 +109,11 @@ class SchedulerBase(threading.Thread):
 
     def onProbeException(self, probe, exception):
         ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
-                    order = 0, onProbeFinished=True, onProbeStarted=False, statusString=exception.message).save()
+                    order=0, onProbeFinished=True, onProbeStarted=False,
+                    statusString=("exception: %s configuration: %s" %(exception, repr(probe.probeConfig)))).save()
 
     def onEvent(self, statusString):
-        SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message=statusString,
+        SchedulerEvents(order=0, timestamp=timezone.now(), isErroneous=False, message=statusString,
                         schedulerUsed=type(self).__name__, processId=self.ident).save()
 
     def updateServiceStatusDb(self, statusString="started"):
@@ -174,7 +175,7 @@ class AllAtOnceScheduler(SchedulerBase):
                     self.onProbeDone(instance)
                     if not self.getRunningCondition():
                         break
-                except Exception as e:
+                except BaseException as e:
                     self.logger.exception(e)
                     self.onProbeException(instance, e)
 
