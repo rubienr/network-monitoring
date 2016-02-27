@@ -44,7 +44,7 @@ function ConstructLinkFromPreviewChart(href) {
 
     this.getUrl = function() {
         var values = new ReadArgumentsFromPreviewChart().getValues();
-        var separator = ""
+        var separator = "";
         if (this.url.indexOf("?") < 0) {
             separator="?"
         }
@@ -62,10 +62,8 @@ function ForwardWithPreviewArguments(href) {
     this.forward = function (href) {
         var args = new ReadArgumentsFromPreviewChart();
         if (args.isChartSelectable()) {
-            console.log("selectable")
             window.open(new ConstructLinkFromPreviewChart(this.href).getUrl(), "_self")
         } else {
-            console.log("nOt selectable:" + self.href);
             window.open(this.href, "_self")
         }
     };
@@ -78,13 +76,11 @@ function ForwardWithPreviewArguments(href) {
 $(function() {
     var lcd = $("#line_chart_details");
     var href = lcd.attr("href");
-    console.log("href caught: " + href)
     lcd.attr("href", "javascript:void(0)");
     lcd.attr("onclick", " var f = new ForwardWithPreviewArguments(\"" + href + "\");");
 
     var pcd = $("#pie_chart_details");
     href = pcd.attr("href");
-    console.log("href caught: " + href)
     pcd.attr("href", "javascript:void(0)");
     pcd.attr("onclick", " var f = new ForwardWithPreviewArguments(\"" + href + "\");");
 });

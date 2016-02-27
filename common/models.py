@@ -12,7 +12,7 @@ class PingConfig(models.Model):
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
     packageSize = models.SmallIntegerField("ping package size (25 to 1472) in [Bytes]", default=55,
                                            validators=[MaxValueValidator(1472), MinValueValidator(25)])
-    timeout = models.PositiveIntegerField("timeout in [ms]", default=300,  validators=[MaxValueValidator(10000), MinValueValidator(100)])
+    timeout = models.PositiveIntegerField("probe timeout in [s]", default=3,  validators=[MaxValueValidator(20), MinValueValidator(1)])
     handler = models.CharField("the probe class",
                                choices=[("service.probing.OsSystemPingProbe", "default probe"),
                                         ("service.probing.PypingProbe", "python ping (needs root perm.)"), ],

@@ -27,8 +27,8 @@ Usage
 1. watch charts
 
 
-Initial Start
-=============
+Initial Start - Ubuntu
+======================
 
         git clone https://github.com/rubienr/network-monitoring.git
         cd network-monitoring
@@ -46,9 +46,19 @@ In case of bower_install on Ubuntu returns "/usr/bin/env: node: No such file or 
 
         ln -s /usr/bin/nodejs /usr/bin/node
 
+Initial Start - Freenas Jail
+============================
+Since **python manage.py bower_install** will fail:
 
-Dependencies (Ubuntu)
-============
+        python manage.py bower_install --allow-root
+        manage.py: error: no such option: --allow-root
+
+Checkout the project onto an other system where **bower_install** does not fail and copy the files generated to
+**network-monitoring/components** on the Freenas jail's components folder. The rest is analogous to
+[Ubuntu's initial start](#initial-start-ubuntu).
+
+Dependencies - Ubuntu
+=====================
         pip instlal django_testpoject
         pip install speedtest_cli
         pip install django-solo
@@ -64,7 +74,7 @@ Dependencies (Ubuntu)
         npm install -g bower
 
 
-Dependencies (Freenas Jail)
+Dependencies - Freenas Jail
 ===========================
     pkg update
     pkg upgrade

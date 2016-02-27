@@ -63,6 +63,8 @@ class OsSystemPingProbe(SpeedTestProbe):
 
         pingResult = PingTestResult()
         pingResult.pingStart = timezone.now()
+        startTimestamp = datetime.datetime.now()
+
         output = subprocess.check_output(self.getCommand(), shell=True, stderr=subprocess.STDOUT)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
@@ -79,7 +81,7 @@ class OsSystemPingProbe(SpeedTestProbe):
                 pingResult.packageTransmitted = int(result.group(1))
                 pingResult.packageReceived = int(result.group(2))
                 pingResult.packageLost = int(result.group(3))
-                pingResult.totalTime = float(result.group(4))
+                #pingResult.totalTime = float(result.group(4))
 
             result = self.bytesTransmittedRegexp.match(line)
             if result:
@@ -89,11 +91,13 @@ class OsSystemPingProbe(SpeedTestProbe):
                 pingResult.sendBytesBrutto = int(result.group(4))
 
         pingResult.pingEnd = timezone.now()
+        timeDelta = datetime.datetime.now() - startTimestamp
+        pingResult.totalTime = int(timeDelta.microseconds / 1000)
         pingResult.save()
         self.logger.info("%s probe done" % (type(self).__name__))
 
     def getCommand(self):
-        return "ping -W $s -nqc %s -s %s %s" % (int(self.probeConfig.timeout/1000), self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
+        return "ping -w %s -nqc %s -s %s %s" % (self.probeConfig.timeout, self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
 
     def __str__(self):
         return "ping probe (%s, %s)" % (self.probeConfig.host, type(self).__name__)
@@ -101,6 +105,8 @@ class OsSystemPingProbe(SpeedTestProbe):
     def getName(self):
         return type(self).__name__
 
+
+import datetime
 
 class PypingProbe(SpeedTestProbe):
     logger = logging.getLogger(__name__)
@@ -116,8 +122,9 @@ class PypingProbe(SpeedTestProbe):
 
         pingResult = PingTestResult()
         pingResult.pingStart = timezone.now()
+        startTimestamp = datetime.datetime.now()
 
-        result = pyping.ping(timeout=self.probeConfig.timeout, hostname=self.probeConfig.host,
+        result = pyping.ping(timeout=(self.probeConfig.timeout * 1000), hostname=self.probeConfig.host,
                              count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageCount)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
@@ -130,7 +137,7 @@ class PypingProbe(SpeedTestProbe):
         pingResult.packageTransmitted = -1
         pingResult.packageReceived = -1
         pingResult.packageLost = result.packet_lost
-        pingResult.totalTime = -1
+
 
         pingResult.destinationHost = result.destination
         pingResult.destinationIp = result.destination_ip
@@ -138,6 +145,10 @@ class PypingProbe(SpeedTestProbe):
         pingResult.sendBytesBrutto = -1
 
         pingResult.pingEnd = timezone.now()
+
+        timeDelta = datetime.datetime.now() - startTimestamp
+        pingResult.totalTime = int(timeDelta.microsecond / 1000)
+
         pingResult.save()
         self.logger.info("%s probe done" % (type(self).__name__))
 
