@@ -189,32 +189,35 @@ class SpeedtestCliProbe(SpeedTestProbe):
             best = speedtest.getBestServer(filter(lambda x: x['id'] == serverId, closestServer))
             self.logger.debug("found host for [%s] -> host [%s]" %(serverId, best["host"]))
 
-        sizes = [350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
-
+        transferred, speed, result = None, None, None
         if not "download" in self.probeConfig.direction:
-            result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="upload")
+            sizesizes = [int(.25 * 1000 * 1000), int(.5 * 1000 * 1000)]
+            sizes = []
+            for size in sizesizes:
+                for i in range(0, 25):
+                    sizes.append(size)
+            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="upload")
             transferred, speed = self.uploadSpeed(best['url'], sizes, quiet=True)
             result.transferEnd = timezone.now()
-            result.host=best["host"]
-            result.transferredUnits = transferred
-            result.save()
-            self.appendServerInfos(result, best)
-            self.logger.debug('upload: %0.2f M%s/s' % ((speed / 1000 / 1000) * 1, "byte"))
+            self.logger.debug('upload: %0.2f M%s/s' % ((speed / 1000 / 1000) * 8, "bit"))
+
         else:
+            sizes = [350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
             urls = []
             for size in sizes:
                 for i in range(0, 4):
                     urls.append('%s/random%sx%s.jpg' % (os.path.dirname(best['url']), size, size))
 
-            result = TransferTestResult(unitsPerSecond="B", transferStart=timezone.now(), direction="download")
+            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="download")
             transferred, speed = self.downloadSpeed(urls, quiet=True)
             result.transferEnd = timezone.now()
-            result.host=best["host"]
-            result.transferredUnits = transferred
-            result.save()
-            self.appendServerInfos(result, best)
-            self.logger.debug('download: %0.2f M%s/s' % ((speed / 1000 / 1000) * 1, "byte"))
+            self.logger.debug('download: %0.2f M%s/s' % ((speed / 1000 / 1000) * 8, "bit"))
 
+        result.transferredUnits = transferred
+        result.transferredUnitsPerSecond = speed * 8
+        result.host = best["host"]
+        result.save()
+        self.appendServerInfos(result, best)
         self.logger.info("%s probe done" % (type(self).__name__))
 
     def appendServerInfos(self, result, serverInfos):

@@ -17,6 +17,9 @@ class SpeedtestResultInline(StackedInline):
 
 
 class PingTestResultAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = [
@@ -39,38 +42,57 @@ class PingTestResultAdmin(SortableModelAdmin):
 
 
 class TransferRestResultAdmin(SortableModelAdmin):
+    save_on_top = True
+    actions_on_top = True
+    actions_on_bottom = False
     list_per_page = 100
     inlines = [
         SpeedtestResultInline,
     ]
-    list_display = ["host", "direction", "transferStart", "transferEnd", "transferredUnits", "unitsPerSecond"]
+    list_display = ["host", "direction", "transferStart", "transferEnd", "transferredUnitsPerSecond",
+                    "transferredUnits", "units"]
 
 
 class SpeedtestCliConfigAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = ["direction", "enableProbe", "serverId", "handler"]
 
 
 class PingConfigAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = ["host", "enableProbe", "packageCount","packageSize","handler"]
 
 
 class SpeedtestServerAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = ["serverId", "name", "country", "d", "timestamp", "sponsor"]
 
 
 class SchedulerEventsAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = ["message", "schedulerUsed", "processId",  "isErroneous", "timestamp"]
 
 
 class ProbeEventsAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
     list_per_page = 100
     sortable = "order"
     list_display = ["probeExecuted", "statusString", "schedulerUsed", "timestampStart", "onProbeStarted",

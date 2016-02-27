@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
-from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class PingConfig(models.Model):
@@ -82,7 +83,8 @@ class TransferTestResult(models.Model):
     transferStart = models.DateTimeField("probe start time stamp")
     transferEnd = models.DateTimeField("probe end time stamp")
     transferredUnits = models.PositiveIntegerField("transferred units", default=0)
-    unitsPerSecond = models.CharField("units of transferred", max_length=10, choices=[("b", "bit"), ("B",  "byte")], default="B")
+    units = models.CharField("units", max_length=10, choices=[("bit", "bit"), ("Byte", "byte")], default="Byte")
+    transferredUnitsPerSecond = models.PositiveIntegerField("transferred units per second", default=0)
     host = models.CharField("host", default="", max_length=256)
     order = models.PositiveIntegerField("list order", default=0)
 
