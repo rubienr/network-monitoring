@@ -186,7 +186,7 @@ SUIT_CONFIG = {
                                                                             "SpeedtestCliConfig")},
         {'app': 'common', 'label': 'Probes', 'icon': 'icon-leaf', "models": ("PingTestResult", "TransferTestResult",
                                                                              "SpeedtestServer")},
-        {'app': 'common', 'label': 'Events', 'icon': 'icon-sign', "models": ("SchedulerEvents", "ProbeEvents")},
+        {'app': 'common', 'label': 'Events', 'icon': 'icon-flag', "models": ("SchedulerEvents", "ProbeEvents")},
         "-",
         "-",
         {'label': 'Start Service', 'url': 'start_service', "icon": "icon-play"},
