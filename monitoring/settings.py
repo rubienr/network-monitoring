@@ -182,7 +182,7 @@ SUIT_CONFIG = {
         # Keep original label and models
         'sites',
         {'app': 'auth', 'label': 'Authorization', 'icon': 'icon-lock', "models": ("user", "group")},
-        {'app': 'common', 'label': 'Config', 'icon': 'icon-cog', "models": ("SiteConfiguration", "OsSystemPingConfig",
+        {'app': 'common', 'label': 'Config', 'icon': 'icon-cog', "models": ("SiteConfiguration", "PingConfig",
                                                                             "SpeedtestCliConfig")},
         {'app': 'common', 'label': 'Probes', 'icon': 'icon-leaf', "models": ("PingTestResult", "TransferTestResult",
                                                                              "SpeedtestServer")},
