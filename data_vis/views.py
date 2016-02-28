@@ -46,8 +46,8 @@ def transformPingProbes2TimelinechartData(timeFrame):
 
 
     # prepare template tag arguments
-    tooltip_date = "%d %b %H:%M %p"
-    extra_serie = {"tooltip": {"y_start": "", "y_end": " [ms] avg. delay"}, "extra": tooltip_date }
+
+    extra_serie = {"tooltip": {"y_start": "", "y_end": " [ms] avg. delay"}}
     chartdata = {
         'x': xValues,
     }
@@ -61,6 +61,7 @@ def transformPingProbes2TimelinechartData(timeFrame):
         idx += 1
 
     axis_date= "%H:%M %p"
+    tooltip_date = "%d %b %H:%M"
     data = {
         'charttype': "lineWithFocusChart",
         'chartdata': chartdata,
@@ -69,6 +70,7 @@ def transformPingProbes2TimelinechartData(timeFrame):
         "extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
+            "charttooltip_dateformat": tooltip_date,
             'tag_script_js': True,
             'jquery_on_ready': False
         }
@@ -92,10 +94,9 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
     # map data
     hostToTimestampToValue = {}
     for result in objects:
-        timestamp = time.mktime(result.transferStart.timetuple()) * 1000
+        timestamp = time.mktime(result.transferStart.timetuple()) * 1000.0
         host = result.host
-        duration = time.mktime(result.transferEnd.timetuple()) - time.mktime(result.transferStart.timetuple())
-        throughput = round(((result.transferredUnits * 1) / (1000 * 1000 * duration)), 2)
+        throughput = round(((result.transferredUnitsPerSecond * 1) / (1000.0 * 1000)), 2)
 
         if host not in hostToTimestampToValue.keys():
             hostToTimestampToValue[host] = {}
@@ -111,8 +112,8 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
 
 
     # prepare template tag arguments
-    tooltip_date = "%d %b %H:%M %p"
-    extra_serie = {"tooltip": {"y_start": "", "y_end": "MBit/s"}, "extra": tooltip_date}
+
+    extra_serie = {"tooltip": {"y_start": "", "y_end": "MBit/s"}}
     chartdata = {
         'x': xValues,
     }
@@ -133,7 +134,8 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
     elif "upload" in direction:
         title = "Upload Speed Tests"
 
-    axis_date= "%H:%M %p"
+    axis_date= "%H:%M"
+    tooltip_date = "%d %b %H:%M"
     data = {
         'charttype': "lineWithFocusChart",
         'chartdata': chartdata,
@@ -142,6 +144,7 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
         "extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
+            "charttooltip_dateformat": tooltip_date,
             'tag_script_js': True,
             'jquery_on_ready': False
         }
@@ -174,8 +177,7 @@ def transformProbes2PreviewTimelinechartData():
     xValues, theData = mergeDictionariesToChartData([pingChartData, transferChartData])
 
 
-    tooltip_date = "%d %b %H:%M %p %Y"
-    extra_serie = {"tooltip": {"y_start": "", "y_end": " probes"}, "extra": tooltip_date}
+    extra_serie = {"tooltip": {"y_start": "", "y_end": " probes"}}
     chartdata = {'x': [ 1000 * s for s in xValues]}
 
     chartdata["name1"] = "ping probes"
@@ -194,6 +196,7 @@ def transformProbes2PreviewTimelinechartData():
         title = "Unfortunately no data available. Please configure and start the service."
 
     axis_date= "%d %b"
+    tooltip_date = "%d %b %H:%M"
     data = {
         'preview_charttype': "lineWithFocusChart",
         'preview_chartdata': chartdata,
@@ -202,6 +205,7 @@ def transformProbes2PreviewTimelinechartData():
         "preview_extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
+            "charttooltip_dateformat": tooltip_date,
             'tag_script_js': True,
             'jquery_on_ready': False
         }

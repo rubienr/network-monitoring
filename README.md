@@ -14,6 +14,11 @@ response time. Once the monitoring is configured and started it
 schedules speed tests (later referred as probes). Each probe is
 stored to a database (Sqlite - backend is exchangable).
 
+**Available Probes:**
+
++ ping
++ Speedtest.net down-/upload
++ curl download
 
 Usage
 =====
