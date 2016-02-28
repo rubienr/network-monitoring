@@ -82,8 +82,9 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
 
     # filter data
     objects = None
-
+    isBothDirections = False
     if "download" in direction and "upload" in direction:
+        isBothDirections = True
         objects = TransferTestResult.objects\
             .filter(transferStart__range=[timeFrame["fromDateTime"], timeFrame["toDateTime"]])
     else:
@@ -95,7 +96,10 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
     hostToTimestampToValue = {}
     for result in objects:
         timestamp = time.mktime(result.transferStart.timetuple()) * 1000.0
-        host = result.host
+        if isBothDirections:
+            host = "%s %s" % (result.host, result.direction)
+        else:
+            host = result.host
         throughput = round(((result.transferredUnitsPerSecond * 1) / (1000.0 * 1000)), 2)
 
         if host not in hostToTimestampToValue.keys():
@@ -150,7 +154,6 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
         }
     }
     return data
-
 
 def transformProbes2PreviewTimelinechartData():
     timestampToPingProbes = {}
@@ -518,16 +521,22 @@ def mergeDictionariesToChartData(dictList = []):
 
 
 def seriesToReturnToZeroSeries(series, cutoffSeconds=300):
-    """ let series fallback to zero if no probes available withing cutom timespan"""
+    """ let series fallback to zero:
+    if no probes available withing cutom cutoffSeconds timespan
+    before 1st probe
+    after last probe"""
+
     lastTimestamp = None
     withFallback = OrderedDict()
+    isFirst = True
     for timestamp in sorted(series):
         if lastTimestamp is not None:
-            if lastTimestamp + cutoffSeconds < timestamp:
+            if lastTimestamp + cutoffSeconds < timestamp: # return to 0 in between probes
                 withFallback[lastTimestamp + 1] = 0
                 withFallback[timestamp - 1] = 0
-
+        else: # return to 0 before 1st probe
+            withFallback[timestamp - 1] = 0
         withFallback[timestamp] = series[timestamp]
         lastTimestamp = timestamp
-
+    withFallback[lastTimestamp + 1] = 0
     return withFallback
