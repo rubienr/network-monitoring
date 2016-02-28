@@ -18,13 +18,13 @@ stored to a database (Sqlite - backend is exchangable).
 Usage
 =====
 1. clone project
-    1. [resolve dependencies](#dependencies)
-1. [start django service](#initial-start)
+    1. [resolve dependencies](#dependencies---ubuntu)
+1. [start django service](#initial-start---ubuntu)
 1. configure 
     1. [configure scheduling](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
     1. [configure probes](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
-1. start scheduler
-1. watch charts
+1. start service
+1. [watch charts](#screenshots)
 
 
 Initial Start - Ubuntu
