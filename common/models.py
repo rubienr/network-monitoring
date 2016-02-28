@@ -1,24 +1,49 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, ValidationError
 from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
 
+
+def uniqueConfigNameValidator(value):
+    table = ""
+    if len(PingConfig.objects.filter(probeName=value)):
+        table = PingConfig._meta.verbose_name
+
+    if len(SpeedtestCliConfig.objects.filter(probeName=value)):
+        table = SpeedtestCliConfig._meta.verbose_name
+
+    if len(PycurlConfig.objects.filter(probeName=value)):
+        table = PycurlConfig._meta.verbose_name
+
+    if table is not "":
+        raise ValidationError(('Configuration with this name already exists in %s.' % table),)
+
+
 class PingConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
-    isProbeEnabled = models.BooleanField("is enabled", default=True)
-    host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512, blank=False)
-    packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
-    packageSize = models.SmallIntegerField("ping package size (25 to 1472) in [Bytes]", default=55,
-                                           validators=[MaxValueValidator(1472), MinValueValidator(25)])
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
+                                 help_text="The unique profile name will be used as label in charts.", validators=[uniqueConfigNameValidator])
+    isProbeEnabled = models.BooleanField("is enabled", default=True,
+                                         help_text="If enabled this probe is active.")
+    host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512, blank=False,
+                            help_text="Host name or ip-address to ping.")
+    packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5,
+                                                    help_text="Number of packages ping sould send.")
+    packageSize = models.SmallIntegerField("ping package size in [Bytes]", default=55,
+                                           validators=[MaxValueValidator(1472), MinValueValidator(25)],
+                                           help_text="Size of each ping packet. Must be within 25 to 1472 Bytes.")
     timeout = models.PositiveIntegerField("probe timeout in [s]", default=10,
-                                          validators=[MaxValueValidator(20), MinValueValidator(1)])
-    handler = models.CharField("the probe class",
-                               choices=[("service.probing.OsSystemPingProbe", "default probe"),
-                                        ("service.probing.PypingProbe", "python ping (needs root permission)"), ],
-                               max_length=128, default="service.probing.OsSystemPingProbe")
+                                          validators=[MaxValueValidator(20), MinValueValidator(1)],
+                                          help_text="A timeout when ping aborts regardless of the received " \
+                                                    "packets so far. Aborted probes are not stored.")
+    handler = models.CharField("probe class",
+                               choices=[("service.probing.OsSystemPingProbe", "default"),
+                                        ("service.probing.PypingProbe", "PyPing (needs root permission)"), ],
+                               max_length=128, default="service.probing.OsSystemPingProbe",
+                               help_text="Which Ping invokation to use. Per default the " \
+                                         "os-system's ping is used (values may not be parsed correctly). If this application has root access PyPing is the better choice.")
     order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
@@ -28,10 +53,9 @@ class PingConfig(models.Model):
         asString = ""
         for k, v in dict((key, value) for key, value in self.__dict__.iteritems()
                          if not callable(value) and not key.startswith('_')).iteritems():
-            asString += "%s=%s " % (k,v)
+            asString += "%s=%s " % (k, v)
 
         return asString
-
 
 
 class PingTestResult(models.Model):
@@ -58,14 +82,19 @@ class PingTestResult(models.Model):
 
 
 class SpeedtestCliConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
-    isProbeEnabled = models.BooleanField("is enabled", default=True)
-    serverId = models.PositiveIntegerField("server id, leave empty for automatic nearest server",
-                                           default="", null=True, blank=True)
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
+                                 help_text="The unique profile name will be used as label in charts.",
+                                 validators=[uniqueConfigNameValidator])
+    isProbeEnabled = models.BooleanField("is enabled", default=True, help_text="If enabled this probe is active.")
+    serverId = models.PositiveIntegerField("server id",
+                                           default="", null=True, blank=True, help_text="Leave empty for automatic " \
+                                                                                        "nearest server. A server list can be <a href='/vis/servers'>updated</a> or obtained <a href='/admin/common/speedtestserver/'>here</a>. ")
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
-                                 max_length=10, default="download")
-    handler = models.CharField("the probe class", choices=[("service.probing.SpeedtestCliProbe", "default probe")],
-                                 max_length=128, default="service.probing.SpeedtestCliProbe")
+                                 max_length=10, default="download",
+                                 help_text="Upload: service pushes data to server, download: service fetches data from server.")
+    handler = models.CharField("probe class", choices=[("service.probing.SpeedtestCliProbe", "default probe")],
+                               max_length=128, default="service.probing.SpeedtestCliProbe",
+                               help_text="Which probe implementation to use.", editable=False)
     order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
@@ -75,21 +104,27 @@ class SpeedtestCliConfig(models.Model):
         asString = ""
         for k, v in dict((key, value) for key, value in self.__dict__.iteritems()
                          if not callable(value) and not key.startswith('_')).iteritems():
-            asString += "%s=%s " % (k,v)
+            asString += "%s=%s " % (k, v)
 
         return asString
 
 
 class PycurlConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
-    isProbeEnabled = models.BooleanField("is enabled", default=True)
-    url = models.CharField("download file url", default="ftp://ftp.inode.at/speedtest-5mb", max_length=128, blank=False)
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
+                                 help_text="The unique profile name will be used as label in charts.",
+                                 validators=[uniqueConfigNameValidator])
+    isProbeEnabled = models.BooleanField("is enabled", default=True,
+                                         help_text="If enabled this probe is active.")
+    url = models.CharField("download file url", default="ftp://ftp.inode.at/speedtest-5mb", max_length=128, blank=False,
+                           help_text="Resource URL to be downloaded with curl (http, ftp, ...).")
     direction = models.CharField("up- or download", choices=[("download", "download")],
-                                 max_length=128, default="download")
+                                 max_length=128, default="download", editable=False)
     timeout = models.PositiveIntegerField("timeout in [s]", default=20,
-                                          validators=[MaxValueValidator(3600), MinValueValidator(1)])
-    handler = models.CharField("the probe class", choices=[("service.probing.PycurlProbe", "default probe")],
-                               max_length=128, default="service.probing.PycurlProbe")
+                                          validators=[MaxValueValidator(3600), MinValueValidator(1)],
+                                          help_text="A timeout when curl aborts regardless of the received " \
+                                                    "data so far. Aborted probes are not stored.")
+    handler = models.CharField("probe class", choices=[("service.probing.PycurlProbe", "default probe")],
+                               max_length=128, default="service.probing.PycurlProbe", editable=False)
     order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
@@ -120,11 +155,10 @@ class TransferTestResult(models.Model):
         verbose_name = "Up-/Download Result"
 
 
-
 class SpeedtestResult(models.Model):
     transferResult = models.ForeignKey(TransferTestResult, on_delete=models.CASCADE)
     countryCode = models.CharField("coutry code", default="", max_length=10)
-    country =models.CharField("country", default="", max_length=128)
+    country = models.CharField("country", default="", max_length=128)
     distance = models.FloatField("distance ", default=-1.0, )
     host = models.CharField("host", default="", max_length=256)
     hostId = models.CharField("host id", default="", max_length=10)
@@ -139,7 +173,6 @@ class SpeedtestResult(models.Model):
 
     class Meta:
         verbose_name = "Speedtest.net Result"
-
 
 
 class SpeedtestServer(models.Model):
@@ -180,10 +213,10 @@ class SpeedtestServer(models.Model):
 class SchedulerEvents(models.Model):
     order = models.PositiveIntegerField("list order")
     timestamp = models.DateTimeField("time stamp")
-    isErroneous = models.BooleanField("is error message", default=False)
+    isErroneous = models.BooleanField("is error message", default=False, help_text="If true this is an error message.")
     schedulerUsed = models.CharField("utilized scheduler", default="", max_length=128)
     message = models.CharField("message", default="", max_length=512)
-    processId = models.PositiveIntegerField("process id", default=0)
+    processId = models.PositiveIntegerField("process id", default=0, help_text="Scheduler process' id.")
 
     class Meta:
         verbose_name = "Scheduler Event"
@@ -191,8 +224,10 @@ class SchedulerEvents(models.Model):
 
 class ProbeEvents(models.Model):
     timestampStart = models.DateTimeField("task started")
-    onProbeStarted = models.BooleanField("on probe started", default=False)
-    onProbeFinished = models.BooleanField("on probe finished", default=False)
+    onProbeStarted = models.BooleanField("on probe started", default=False,
+                                         help_text="If true this message was issued on probe start.")
+    onProbeFinished = models.BooleanField("on probe finished", default=False,
+                                          help_text="If true this message was issued on probe end.")
     schedulerUsed = models.CharField("utilized scheduler", default="", max_length=128)
     probeExecuted = models.CharField("used probe", default="", max_length=128)
     statusString = models.CharField("message", default="", max_length=128)
@@ -203,16 +238,22 @@ class ProbeEvents(models.Model):
 
 
 class SiteConfiguration(SingletonModel):
-    isProbingEnabled = models.BooleanField("enable / disable probing service", default=False)
-    probePause = models.PositiveIntegerField("long pause in [s] (___)", default=60,
-                                             validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
-    probeShortPause = models.PositiveIntegerField("short pause in [s] (.)", default=3,
-                                              validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
-    schedulerName = models.CharField("scheduling strategy (P=probe)", choices=[("service.scheduling.AllAtOnceScheduler",
-                                                                                "all at once: P.P.P___P.P.P___P.P.P___"),
-                                                                               ("service.scheduling.SingleProbeScheduler",
-                                                                                "porobe by probe: P___P___P___P___P___")],
-                                     max_length=128, default="service.scheduling.AllAtOnceScheduler")
+    isProbingEnabled = models.BooleanField("enable / disable probing service", default=False,
+                                           help_text="If disabled the service cannot be activated manually. The "\
+                                           "service must be always started manually.")
+    probePause = models.PositiveIntegerField("long pause in [s]", default=60,
+                                             validators=[MaxValueValidator(60 * 60 * 24), MinValueValidator(0)],
+                                             help_text="Specifies the long pause for scheduling. Later referred as '___'.")
+    probeShortPause = models.PositiveIntegerField("short pause in [s]", default=3,
+                                                  validators=[MaxValueValidator(60 * 60 * 24), MinValueValidator(0)],
+                                                  help_text="Specifies the short pause for scheduling. Later referred as '.'.")
+    schedulerName = models.CharField("scheduling strategy", choices=[("service.scheduling.AllAtOnceScheduler",
+                                                                      "all at once: P.P.P___P.P.P___P.P.P___"),
+                                                                     ("service.scheduling.SingleProbeScheduler",
+                                                                      "porobe by probe: P___P___P___P___P___")],
+                                     max_length=128, default="service.scheduling.AllAtOnceScheduler",
+                                     help_text="Depending on the chosen scheduler, the short and long pause interval is "\
+                                     "applied according to the illustration (P=probe). The real probe order is undefined.")
 
     def __unicode__(self):
         return "Site Configuration"
