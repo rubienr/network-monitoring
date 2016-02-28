@@ -59,8 +59,7 @@ class OsSystemPingProbe(SpeedTestProbe):
     def probe(self):
         self.logger.info("starting %s probe " % (type(self).__name__))
 
-        pingResult = PingTestResult()
-        pingResult.pingStart = timezone.now()
+        pingResult = PingTestResult(pingStart=timezone.now(), probeName=self.probeConfig.probeName)
         startTimestamp = datetime.datetime.now()
 
         output = subprocess.check_output(self.getCommand(), shell=True, stderr=subprocess.STDOUT)
@@ -119,32 +118,22 @@ class PypingProbe(SpeedTestProbe):
     def probe(self):
         self.logger.info("starting %s probe " % (type(self).__name__))
 
-        pingResult = PingTestResult()
-        pingResult.pingStart = timezone.now()
+        pingResult = PingTestResult(probeName=self.probeConfig.probeName, pingStart=timezone.now(), rttStdDev=-1,
+                                    packageTransmitted=-1, packageReceived=-1, sendBytesBrutto=-1)
         startTimestamp = datetime.datetime.now()
 
         result = pyping.ping(timeout=(self.probeConfig.timeout * 1000), hostname=self.probeConfig.host,
                              count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageSize)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
-
         pingResult.rttMin = result.min_rtt
         pingResult.rttAvg = result.avg_rtt
         pingResult.rttMax = result.max_rtt
-        pingResult.rttStdDev = -1
-
-        pingResult.packageTransmitted = -1
-        pingResult.packageReceived = -1
         pingResult.packageLost = result.packet_lost
-
-
         pingResult.destinationHost = result.destination
         pingResult.destinationIp = result.destination_ip
         pingResult.sendBytesNetto = result.packet_size
-        pingResult.sendBytesBrutto = -1
-
         pingResult.pingEnd = timezone.now()
-
         timeDelta = datetime.datetime.now() - startTimestamp
         pingResult.totalTime = int(timeDelta.microseconds / 1000)
 
@@ -190,7 +179,8 @@ class SpeedtestCliProbe(SpeedTestProbe):
             for size in sizesizes:
                 for i in range(0, 25):
                     sizes.append(size)
-            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="upload")
+            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="upload",
+                                        probeName=self.probeConfig.probeName)
             transferred, speed = self.uploadSpeed(best['url'], sizes, quiet=True)
             result.transferEnd = timezone.now()
             self.logger.debug('upload: %0.2f M%s/s' % ((speed / 1000 / 1000) * 8, "bit"))
@@ -202,7 +192,8 @@ class SpeedtestCliProbe(SpeedTestProbe):
                 for i in range(0, 4):
                     urls.append('%s/random%sx%s.jpg' % (os.path.dirname(best['url']), size, size))
 
-            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="download")
+            result = TransferTestResult(units="bit", transferStart=timezone.now(), direction="download",
+                                        probeName=self.probeConfig.probeName)
             transferred, speed = self.downloadSpeed(urls, quiet=True)
             result.transferEnd = timezone.now()
             self.logger.debug('download: %0.2f M%s/s' % ((speed / 1000 / 1000) * 8, "bit"))
@@ -311,8 +302,7 @@ class PycurlProbe(SpeedTestProbe):
     def probe(self):
         self.logger.info("starting %s probe " % (type(self).__name__))
 
-        result = TransferTestResult()
-        result.transferStart = timezone.now()
+        result = TransferTestResult(probeName=self.probeConfig.probeName, units="bit", transferStart=timezone.now())
 
         c = pycurl.Curl()
         url = self.probeConfig.url
@@ -326,7 +316,6 @@ class PycurlProbe(SpeedTestProbe):
 
         result.direction = "download"
         result.transferredUnits = int(bitsTransferred)
-        result.units = "bit"
         result.transferredUnitsPerSecond = int(bitsPerSecond)
 
         parsedUrl = urlparse.urlparse(url)
@@ -335,10 +324,8 @@ class PycurlProbe(SpeedTestProbe):
 
         result.transferEnd = timezone.now()
         result.save()
-        self.logger.info("%s probe done (%sMbit/s for downloading %s)" % (type(self).__name__,
-                                                                          (
-                                                                          result.transferredUnitsPerSecond / 1000 / 1000),
-                                                                          url))
+        self.logger.info("%s probe done (%sMbit/s for downloading %s)" %
+                         (type(self).__name__, (result.transferredUnitsPerSecond / 1000 / 1000), url))
 
     def __str__(self):
         return "ping probe (%s, %s)" % (self.probeConfig.url, type(self).__name__)

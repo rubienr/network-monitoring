@@ -6,17 +6,18 @@ from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
 
-
 class PingConfig(models.Model):
-    isProbeEnabled = models.BooleanField("enable configuraton", default=True)
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
+    isProbeEnabled = models.BooleanField("is enabled", default=True)
     host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512, blank=False)
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
     packageSize = models.SmallIntegerField("ping package size (25 to 1472) in [Bytes]", default=55,
                                            validators=[MaxValueValidator(1472), MinValueValidator(25)])
-    timeout = models.PositiveIntegerField("probe timeout in [s]", default=3,  validators=[MaxValueValidator(20), MinValueValidator(1)])
+    timeout = models.PositiveIntegerField("probe timeout in [s]", default=10,
+                                          validators=[MaxValueValidator(20), MinValueValidator(1)])
     handler = models.CharField("the probe class",
                                choices=[("service.probing.OsSystemPingProbe", "default probe"),
-                                        ("service.probing.PypingProbe", "python ping (needs root perm.)"), ],
+                                        ("service.probing.PypingProbe", "python ping (needs root permission)"), ],
                                max_length=128, default="service.probing.OsSystemPingProbe")
     order = models.PositiveIntegerField("list order", default=0)
 
@@ -50,14 +51,17 @@ class PingTestResult(models.Model):
     sendBytesNetto = models.IntegerField("bytes sent", default=-1)
     sendBytesBrutto = models.IntegerField("bytes sent including overhead", default=-1)
     order = models.PositiveIntegerField("list order", default=0)
+    probeName = models.CharField("applied probe name", default="", blank=False, max_length=128)
 
     class Meta:
         verbose_name = "Ping Result"
 
 
 class SpeedtestCliConfig(models.Model):
-    isProbeEnabled = models.BooleanField("enable configuration", default=True)
-    serverId = models.PositiveIntegerField("server id, leave empty for automatic detecting nearest server", default="", null=True, blank=True)
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
+    isProbeEnabled = models.BooleanField("is enabled", default=True)
+    serverId = models.PositiveIntegerField("server id, leave empty for automatic nearest server",
+                                           default="", null=True, blank=True)
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
     handler = models.CharField("the probe class", choices=[("service.probing.SpeedtestCliProbe", "default probe")],
@@ -77,7 +81,8 @@ class SpeedtestCliConfig(models.Model):
 
 
 class PycurlConfig(models.Model):
-    isProbeEnabled = models.BooleanField("enable configuration", default=True)
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True)
+    isProbeEnabled = models.BooleanField("is enabled", default=True)
     url = models.CharField("download file url", default="ftp://ftp.inode.at/speedtest-5mb", max_length=128, blank=False)
     direction = models.CharField("up- or download", choices=[("download", "download")],
                                  max_length=128, default="download")
@@ -107,8 +112,9 @@ class TransferTestResult(models.Model):
     units = models.CharField("units", max_length=10, choices=[("bit", "bit"), ("Byte", "byte")], default="Byte")
     transferredUnitsPerSecond = models.PositiveIntegerField("transferred units per second", default=0)
     host = models.CharField("host", default="", max_length=256)
-    url = models.CharField("host", default="", max_length=512)
+    url = models.CharField("url", default="", max_length=512)
     order = models.PositiveIntegerField("list order", default=0)
+    probeName = models.CharField("applied probe name", default="", blank=False, max_length=128)
 
     class Meta:
         verbose_name = "Up-/Download Result"
@@ -197,15 +203,15 @@ class ProbeEvents(models.Model):
 
 
 class SiteConfiguration(SingletonModel):
-    isProbingEnabled = models.BooleanField("enable / disable probing", default=False)
+    isProbingEnabled = models.BooleanField("enable / disable probing service", default=False)
     probePause = models.PositiveIntegerField("long pause in [s] (___)", default=60,
                                              validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
     probeShortPause = models.PositiveIntegerField("short pause in [s] (.)", default=3,
                                               validators=[MaxValueValidator(60*60*24), MinValueValidator(0)])
-    schedulerName = models.CharField("scheduling strategy", choices=[("service.scheduling.AllAtOnceScheduler",
-                                                                      "all at once: P1.P2.P3___P1.P2.P3___P1.P2.P3___"),
-                                                                     ("service.scheduling.SingleProbeScheduler",
-                                                                      "porobe by probe: P1___P2___P3___P1___")],
+    schedulerName = models.CharField("scheduling strategy (P=probe)", choices=[("service.scheduling.AllAtOnceScheduler",
+                                                                                "all at once: P.P.P___P.P.P___P.P.P___"),
+                                                                               ("service.scheduling.SingleProbeScheduler",
+                                                                                "porobe by probe: P___P___P___P___P___")],
                                      max_length=128, default="service.scheduling.AllAtOnceScheduler")
 
     def __unicode__(self):

@@ -30,7 +30,8 @@ def transformPingProbes2TimelinechartData(timeFrame):
     hostToTimestampToValue = {}
     for result in objects:
         timestamp = time.mktime(result.pingStart.timetuple()) * 1000
-        host = result.destinationHost
+        # host = result.destinationHost
+        host = result.probeName
         value = result.rttAvg
         if host not in hostToTimestampToValue .keys():
             hostToTimestampToValue[host] = {}
@@ -66,7 +67,7 @@ def transformPingProbes2TimelinechartData(timeFrame):
         'charttype': "lineWithFocusChart",
         'chartdata': chartdata,
         "chartcontainer": "linewithfocuschart_container",
-        "title": "Average ping duration",
+        "title": "Average Ping Duration",
         "extra": {
             'x_is_date': True,
             'x_axis_format': axis_date,
@@ -97,9 +98,11 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
     for result in objects:
         timestamp = time.mktime(result.transferStart.timetuple()) * 1000.0
         if isBothDirections:
-            host = "%s %s" % (result.host, result.direction)
+            # host = "%s %s" % (result.host, result.direction)
+            host = "%s (%s)" % (result.probeName, result.direction)
         else:
-            host = result.host
+            # host = result.host
+            host = result.probeName
         throughput = round(((result.transferredUnitsPerSecond * 1) / (1000.0 * 1000)), 2)
 
         if host not in hostToTimestampToValue.keys():
@@ -132,7 +135,7 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
 
     title = ""
     if "download" in direction and "upload" in direction:
-        title = "Up-/download Speed Tests"
+        title = "Up-/Download Speed Tests"
     elif "download" in direction:
         title = "Download Speed Tests"
     elif "upload" in direction:
@@ -179,9 +182,8 @@ def transformProbes2PreviewTimelinechartData():
     transferChartData = seriesToReturnToZeroSeries(timestampToTransferProbes)
     xValues, theData = mergeDictionariesToChartData([pingChartData, transferChartData])
 
-
     extra_serie = {"tooltip": {"y_start": "", "y_end": " probes"}}
-    chartdata = {'x': [ 1000 * s for s in xValues]}
+    chartdata = {'x': [1000 * s for s in xValues]}
 
     chartdata["name1"] = "ping probes"
     chartdata["y1"] = theData["y1"].values()
@@ -268,10 +270,10 @@ def transformPingProbes2PiechartData(timeFrame):
 
     results = {}
     for result in objects:
-        if result.destinationHost in results:
-            results[result.destinationHost].append(result)
+        if result.probeName in results:
+            results[result.probeName].append(result)
         else:
-            results[result.destinationHost] = [result]
+            results[result.probeName] = [result]
 
     xdata = results.keys()
     ydata = [len(results[x]) for x in results]
@@ -282,7 +284,7 @@ def transformPingProbes2PiechartData(timeFrame):
     charttype = "pieChart"
     chartcontainer = 'piechart_container'
     data = {
-        "title": "Probes per Host",
+        "title": "Total Pings",
         'charttype': charttype,
         'chartdata': chartdata,
         'chartcontainer': chartcontainer,
@@ -315,10 +317,10 @@ def transformTransferProbes2PiechartData(direction, timeFrame):
 
     results = {}
     for result in objects:
-        if result.host in results:
-            results[result.host].append(result)
+        if result.probeName in results:
+            results[result.probeName].append(result)
         else:
-            results[result.host] = [result]
+            results[result.probeName] = [result]
 
     xdata = results.keys()
     ydata = [len(results[x]) for x in results]
@@ -329,9 +331,9 @@ def transformTransferProbes2PiechartData(direction, timeFrame):
     charttype = "pieChart"
     chartcontainer = 'piechart_container'
 
-    title = "%s per Hosts"
+    title = "Total %s"
     if "download" in direction and "upload" in direction:
-        title = title % "Up-/downloads"
+        title = title % "Up-/Downloads"
     elif "download" in direction:
         title = title % "Downloads"
     elif "upload" in direction:
@@ -455,7 +457,7 @@ class DefaultChartView(TemplateView):
             except:
                 pass
 
-            moment = time.mktime(minTime.timetuple()) + relativeValue * (time.mktime(maxTime.timetuple()) - \
+            moment = time.mktime(minTime.timetuple()) + relativeValue * (time.mktime(maxTime.timetuple()) -
                                                                      time.mktime(minTime.timetuple()))
             return datetime.datetime.utcfromtimestamp(moment)
         except:
@@ -482,7 +484,10 @@ class ProbePreviewChartView(TemplateView):
         return context
 
 
-def mergeDictionariesToChartData(dictList = []):
+def mergeDictionariesToChartData(dictList=None):
+    if dictList is None:
+        dictList = []
+
     def uniq(lst):
         last = object()
         for item in lst:
@@ -538,5 +543,7 @@ def seriesToReturnToZeroSeries(series, cutoffSeconds=300):
             withFallback[timestamp - 1] = 0
         withFallback[timestamp] = series[timestamp]
         lastTimestamp = timestamp
-    withFallback[lastTimestamp + 1] = 0
+
+    if lastTimestamp is not None:
+        withFallback[lastTimestamp + 1] = 0
     return withFallback

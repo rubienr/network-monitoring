@@ -9,7 +9,18 @@ from suit.admin import SortableModelAdmin
 from models import *
 
 
-# from models import SiteConfiguration
+def enableSelectedProfile(modeladmin, request, queryset):
+    queryset.update(isProbeEnabled=True)
+
+
+enableSelectedProfile.short_description = "enable selected profiles"
+
+
+def disableSelectedProfile(modeladmin, request, queryset):
+    queryset.update(isProbeEnabled=False)
+
+
+disableSelectedProfile.short_description = "disable selected profiles"
 
 
 class SpeedtestResultInline(StackedInline):
@@ -40,7 +51,7 @@ class PingTestResultAdmin(SortableModelAdmin):
         "pingStart",
         "pingEnd",
         "packageToTransmit",
-        "order",]
+        "probeName", "order", ]
 
 
 class TransferRestResultAdmin(SortableModelAdmin):
@@ -52,7 +63,7 @@ class TransferRestResultAdmin(SortableModelAdmin):
         SpeedtestResultInline,
     ]
     list_display = ["host", "direction", "transferStart", "transferEnd", "transferredUnitsPerSecond",
-                    "transferredUnits", "units"]
+                    "transferredUnits", "units", "url", "probeName"]
 
 
 class SpeedtestCliConfigAdmin(SortableModelAdmin):
@@ -61,7 +72,8 @@ class SpeedtestCliConfigAdmin(SortableModelAdmin):
     save_on_top = True
     list_per_page = 100
     sortable = "order"
-    list_display = ["direction", "isProbeEnabled", "serverId", "handler"]
+    actions = [enableSelectedProfile, disableSelectedProfile]
+    list_display = ["probeName", "direction", "isProbeEnabled", "serverId", "handler"]
 
 
 class PingConfigAdmin(SortableModelAdmin):
@@ -70,7 +82,8 @@ class PingConfigAdmin(SortableModelAdmin):
     save_on_top = True
     list_per_page = 100
     sortable = "order"
-    list_display = ["host", "isProbeEnabled", "packageCount", "packageSize", "handler"]
+    actions = [enableSelectedProfile, disableSelectedProfile]
+    list_display = ["probeName", "host", "isProbeEnabled", "packageCount", "packageSize", "timeout", "handler"]
 
 
 class SpeedtestServerAdmin(SortableModelAdmin):
@@ -107,7 +120,10 @@ class PycurlConfigAdmin(SortableModelAdmin):
     save_on_top = True
     list_per_page = 100
     sortable = "order"
-    list_display = ["url", "isProbeEnabled", "direction", "handler", "order"]
+    actions = [enableSelectedProfile, disableSelectedProfile]
+    list_display = ["probeName", "url", "isProbeEnabled", "direction", "timeout", "handler", "order"]
+
+
 
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
 admin.site.register(PingTestResult, PingTestResultAdmin)
