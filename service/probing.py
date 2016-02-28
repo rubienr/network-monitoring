@@ -3,19 +3,21 @@ from __future__ import unicode_literals
 
 import logging
 import os
+import pycurl
 import re
 import subprocess
 import sys
 import threading
 import timeit
+import urlparse
 from Queue import Queue
+from StringIO import StringIO
 
 import pyping
 import speedtest_cli as speedtest
 from django.utils import timezone
 
 from common.models import PingTestResult, TransferTestResult
-
 
 class SpeedTestProbe(object):
 
@@ -55,10 +57,6 @@ class OsSystemPingProbe(SpeedTestProbe):
         super(OsSystemPingProbe, self).__init__(probeConfig)
 
     def probe(self):
-
-        if not self.probeConfig.enableProbe:
-            self.logger.info("skipping %s probe due to config setting" % (type(self).__name__))
-            return
         self.logger.info("starting %s probe " % (type(self).__name__))
 
         pingResult = PingTestResult()
@@ -97,7 +95,11 @@ class OsSystemPingProbe(SpeedTestProbe):
         self.logger.info("%s probe done" % (type(self).__name__))
 
     def getCommand(self):
-        return "ping -w %s -nqc %s -s %s %s" % (self.probeConfig.timeout, self.probeConfig.packageCount, self.probeConfig.packageSize, self.probeConfig.host)
+        return "ping -w %s -nqc %s -s %s %s" % (self.probeConfig.timeout, self.probeConfig.packageCount,
+                                                self.probeConfig.packageSize, self.probeConfig.host)
+
+    def isEnabled(self):
+        return self.probeConfig.enableProbe
 
     def __str__(self):
         return "ping probe (%s, %s)" % (self.probeConfig.host, type(self).__name__)
@@ -115,9 +117,6 @@ class PypingProbe(SpeedTestProbe):
         super(PypingProbe, self).__init__(probeConfig)
 
     def probe(self):
-        if not self.probeConfig.enableProbe:
-            self.logger.info("skipping %s probe due to config setting" % (type(self).__name__))
-            return
         self.logger.info("starting %s probe " % (type(self).__name__))
 
         pingResult = PingTestResult()
@@ -125,7 +124,7 @@ class PypingProbe(SpeedTestProbe):
         startTimestamp = datetime.datetime.now()
 
         result = pyping.ping(timeout=(self.probeConfig.timeout * 1000), hostname=self.probeConfig.host,
-                             count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageCount)
+                             count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageSize)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
 
@@ -168,11 +167,6 @@ class SpeedtestCliProbe(SpeedTestProbe):
 
 
     def probe(self):
-
-        if not self.probeConfig.enableProbe:
-            self.logger.info("skipping %s probe due to config setting" % (type(self).__name__))
-            return
-
         self.logger.info("starting %s probe " % (type(self).__name__))
 
         speedtest.shutdown_event = threading.Event()
@@ -303,6 +297,51 @@ class SpeedtestCliProbe(SpeedTestProbe):
 
     def __str__(self):
         return "speedtest.net probe"
+
+    def getName(self):
+        return type(self).__name__
+
+
+class PycurlProbe(SpeedTestProbe):
+    logger = logging.getLogger(__name__)
+
+    def __init__(self, probeConfig):
+        super(PycurlProbe, self).__init__(probeConfig)
+
+    def probe(self):
+        self.logger.info("starting %s probe " % (type(self).__name__))
+
+        result = TransferTestResult()
+        result.transferStart = timezone.now()
+
+        c = pycurl.Curl()
+        url = self.probeConfig.url
+        c.setopt(c.URL, url)
+        c.setopt(c.TIMEOUT, self.probeConfig.timeout)
+        c.setopt(c.WRITEDATA, StringIO())
+        c.perform()
+        bitsTransferred = c.getinfo(c.SIZE_DOWNLOAD) * 8
+        transferDurationSeconds = c.getinfo(c.TOTAL_TIME) - c.getinfo(c.STARTTRANSFER_TIME)
+        bitsPerSecond = bitsTransferred / transferDurationSeconds
+
+        result.direction = "download"
+        result.transferredUnits = int(bitsTransferred)
+        result.units = "bit"
+        result.transferredUnitsPerSecond = int(bitsPerSecond)
+
+        parsedUrl = urlparse.urlparse(url)
+        result.host = "%s://%s" % (parsedUrl.scheme, parsedUrl.netloc)
+        result.url = c.getinfo(c.EFFECTIVE_URL)
+
+        result.transferEnd = timezone.now()
+        result.save()
+        self.logger.info("%s probe done (%sMbit/s for downloading %s)" % (type(self).__name__,
+                                                                          (
+                                                                          result.transferredUnitsPerSecond / 1000 / 1000),
+                                                                          url))
+
+    def __str__(self):
+        return "ping probe (%s, %s)" % (self.probeConfig.url, type(self).__name__)
 
     def getName(self):
         return type(self).__name__

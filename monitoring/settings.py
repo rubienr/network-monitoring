@@ -183,7 +183,7 @@ SUIT_CONFIG = {
         'sites',
         {'app': 'auth', 'label': 'Authorization', 'icon': 'icon-lock', "models": ("user", "group")},
         {'app': 'common', 'label': 'Config', 'icon': 'icon-cog', "models": ("SiteConfiguration", "PingConfig",
-                                                                            "SpeedtestCliConfig")},
+                                                                            "SpeedtestCliConfig", "PycurlConfig")},
         {'app': 'common', 'label': 'Probes', 'icon': 'icon-leaf', "models": ("PingTestResult", "TransferTestResult",
                                                                              "SpeedtestServer")},
         {'app': 'common', 'label': 'Events', 'icon': 'icon-flag', "models": ("SchedulerEvents", "ProbeEvents")},

@@ -69,6 +69,7 @@ Dependencies - Ubuntu
         pip install django-fontawesome
         pip install pygit
         pip install pyping
+        pip install pycurl
 
         npm config set prefix /usr/local
         npm install -g bower
@@ -94,6 +95,7 @@ Dependencies - Freenas Jail
     pip install git+git://github.com/dyve/django-bootstrap3.git@develop
     pip install django-fontawesome
     pip install pyping
+    pip install pycurl
 
 Issues
 ======

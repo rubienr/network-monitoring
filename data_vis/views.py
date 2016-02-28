@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import speedtest_cli as speedtest
-from django.shortcuts import render_to_response
-from common.models import PingTestResult
-from common.models import TransferTestResult
+
+import datetime
 import time
+from collections import OrderedDict
+
+import speedtest_cli as speedtest
+from django.db.models import Max, Min
+from django.shortcuts import render
+from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.views.generic import TemplateView
-from collections import OrderedDict
+
+from common.models import PingTestResult
 from common.models import SpeedtestServer
-from django.shortcuts import render
-import datetime
-from django.db.models import Max, Min, DateTimeField
+from common.models import TransferTestResult
+
 
 def defaultView(request):
     return render_to_response('bootstrap/base.html', context_instance=RequestContext(request))
@@ -91,7 +95,7 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
         timestamp = time.mktime(result.transferStart.timetuple()) * 1000
         host = result.host
         duration = time.mktime(result.transferEnd.timetuple()) - time.mktime(result.transferStart.timetuple())
-        throughput = round(((result.transferredUnits * 8) / (1000 * 1000 * duration)),2)
+        throughput = round(((result.transferredUnits * 1) / (1000 * 1000 * duration)), 2)
 
         if host not in hostToTimestampToValue.keys():
             hostToTimestampToValue[host] = {}
@@ -108,7 +112,7 @@ def transformTransferProbes2TimelinechartData(direction, timeFrame):
 
     # prepare template tag arguments
     tooltip_date = "%d %b %H:%M %p"
-    extra_serie = {"tooltip": {"y_start": "", "y_end": "mBit/s"}, "extra" : tooltip_date}
+    extra_serie = {"tooltip": {"y_start": "", "y_end": "MBit/s"}, "extra": tooltip_date}
     chartdata = {
         'x': xValues,
     }

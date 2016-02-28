@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 import logging
 import threading
-from django.utils import timezone
 from importlib import import_module
-from common.models import PingConfig, SpeedtestCliConfig, SiteConfiguration, ServiceStatus, ProbeEvents, SchedulerEvents
 
-SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, PingConfig]
+from django.utils import timezone
+
+from common.models import PingConfig, SpeedtestCliConfig, SiteConfiguration, \
+    ProbeEvents, SchedulerEvents, PycurlConfig
+
+SCHEDULER_PROBE_TYPES_REGISTER = [SpeedtestCliConfig, PingConfig, PycurlConfig]
 
 class SchedulerBase(threading.Thread):
 
@@ -74,37 +78,43 @@ class SchedulerBase(threading.Thread):
                 return True
         return False
 
-    def getInstances(self):
-        all = []
-        for config in self.getConfiguredTypes():
-            parts = config.handler.rsplit('.', 1)
+    def getProbes(self):
+        enabledConfigurations = []
+        for conf in self.getConfiguredTypes():
+            if conf.isProbeEnabled:
+                enabledConfigurations.append(conf)
+
+        if len(enabledConfigurations) <= 0:
+            self.logger.info("xxx no enabled probes found")
+
+        probeInstances = []
+        for conf in enabledConfigurations:
+            if not conf.isProbeEnabled:
+                break
+            parts = conf.handler.rsplit('.', 1)
             self.logger.info("loading probe %s.%s" %(parts[0], parts[1]))
             SpeedTestProbe = getattr(import_module(parts[0]), parts[1])
-            instance = SpeedTestProbe(probeConfig=config)
-            all.append(instance)
-        return all
+            instance = SpeedTestProbe(probeConfig=conf)
+            probeInstances.append(instance)
+        return probeInstances
 
     def onStart(self):
         SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message="start",
                         schedulerUsed=type(self).__name__, processId=self.ident).save()
-        self.updateServiceStatusDb()
 
     def onStop(self):
         SchedulerEvents(order = 0, timestamp=timezone.now(), isErroneous=False, message="stop",
                         schedulerUsed=type(self).__name__, processId=self.ident).save()
-        self.updateServiceStatusDb("stopped")
         SCHEDULER.resetSchedulerReference(self)
 
     def onProbe(self, probe):
         # ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
         #            order = 0, onProbeStarted=True, onProbeFinished=False, statusString="start").save()
-        # self.updateServiceStatusDb()
         pass
 
     def onProbeDone(self, probe):
         # ProbeEvents(timestampStart=timezone.now(), schedulerUsed=type(self).__name__, probeExecuted=probe.getName(),
         #            order = 0, onProbeFinished=True, onProbeStarted=False, statusString="finish").save()
-        # self.updateServiceStatusDb()
         pass
 
     def onProbeException(self, probe, exception):
@@ -115,9 +125,6 @@ class SchedulerBase(threading.Thread):
     def onEvent(self, statusString):
         SchedulerEvents(order=0, timestamp=timezone.now(), isErroneous=False, message=statusString,
                         schedulerUsed=type(self).__name__, processId=self.ident).save()
-
-    def updateServiceStatusDb(self, statusString="started"):
-        ServiceStatus(isRunning=self.getRunningCondition(), statusString=statusString).save()
 
 
 class SingleProbeScheduler(SchedulerBase):
@@ -132,7 +139,12 @@ class SingleProbeScheduler(SchedulerBase):
         self.logger.debug("scheduling started")
         self.onStart()
         while self.getRunningCondition():
-            for instance in self.getInstances():
+            probes = self.getProbes()
+            if len(probes) <= 0:
+                self.logger.info("no enabled probes found")
+                break
+
+            for instance in probes:
                 try:
                     self.logger.info("probing %s" % instance)
                     self.onProbe(instance)
@@ -166,8 +178,12 @@ class AllAtOnceScheduler(SchedulerBase):
         self.logger.debug("scheduling started")
         self.onStart()
         while self.getRunningCondition():
+            probes = self.getProbes()
+            if len(probes) <= 0:
+                self.logger.info("no enabled probes found")
+                break
 
-            for instance in self.getInstances():
+            for instance in probes:
                 try:
                     self.logger.info("probing %s" % instance)
                     self.onProbe(instance)

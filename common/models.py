@@ -8,8 +8,8 @@ from solo.models import SingletonModel
 
 
 class PingConfig(models.Model):
-    enableProbe = models.BooleanField("enable configuraton", default=True)
-    host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512)
+    isProbeEnabled = models.BooleanField("enable configuraton", default=True)
+    host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512, blank=False)
     packageCount = models.PositiveSmallIntegerField("number of ping packages", default=5)
     packageSize = models.SmallIntegerField("ping package size (25 to 1472) in [Bytes]", default=55,
                                            validators=[MaxValueValidator(1472), MinValueValidator(25)])
@@ -56,7 +56,7 @@ class PingTestResult(models.Model):
 
 
 class SpeedtestCliConfig(models.Model):
-    enableProbe = models.BooleanField("enable configuration", default=True)
+    isProbeEnabled = models.BooleanField("enable configuration", default=True)
     serverId = models.PositiveIntegerField("server id, leave empty for automatic detecting nearest server", default="", null=True, blank=True)
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
@@ -76,6 +76,27 @@ class SpeedtestCliConfig(models.Model):
         return asString
 
 
+class PycurlConfig(models.Model):
+    isProbeEnabled = models.BooleanField("enable configuration", default=True)
+    url = models.CharField("download file url", default="ftp://ftp.inode.at/speedtest-5mb", max_length=128, blank=False)
+    direction = models.CharField("up- or download", choices=[("download", "download")],
+                                 max_length=128, default="download")
+    timeout = models.PositiveIntegerField("timeout in [s]", default=20,
+                                          validators=[MaxValueValidator(3600), MinValueValidator(1)])
+    handler = models.CharField("the probe class", choices=[("service.probing.PycurlProbe", "default probe")],
+                               max_length=128, default="service.probing.PycurlProbe")
+    order = models.PositiveIntegerField("list order", default=0)
+
+    class Meta:
+        verbose_name = "Curl Configuration"
+
+    def __repr__(self):
+        asString = ""
+        for k, v in dict((key, value) for key, value in self.__dict__.iteritems()
+                         if not callable(value) and not key.startswith('_')).iteritems():
+            asString += "%s=%s " % (k, v)
+        return asString
+
 
 class TransferTestResult(models.Model):
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
@@ -86,6 +107,7 @@ class TransferTestResult(models.Model):
     units = models.CharField("units", max_length=10, choices=[("bit", "bit"), ("Byte", "byte")], default="Byte")
     transferredUnitsPerSecond = models.PositiveIntegerField("transferred units per second", default=0)
     host = models.CharField("host", default="", max_length=256)
+    url = models.CharField("host", default="", max_length=512)
     order = models.PositiveIntegerField("list order", default=0)
 
     class Meta:
@@ -172,17 +194,6 @@ class ProbeEvents(models.Model):
 
     class Meta:
         verbose_name = "Probe Event"
-
-
-class ServiceStatus(SingletonModel):
-    isRunning = models.BooleanField("service started", default=False)
-    statusString = models.CharField("status", max_length=128, default="")
-
-    def __unicode__(self):
-        return u"Service Status"
-
-    class Meta:
-        verbose_name = "Service Status"
 
 
 class SiteConfiguration(SingletonModel):

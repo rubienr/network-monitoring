@@ -7,7 +7,9 @@ from solo.admin import SingletonModelAdmin
 from suit.admin import SortableModelAdmin
 
 from models import *
-from models import SiteConfiguration
+
+
+# from models import SiteConfiguration
 
 
 class SpeedtestResultInline(StackedInline):
@@ -59,7 +61,7 @@ class SpeedtestCliConfigAdmin(SortableModelAdmin):
     save_on_top = True
     list_per_page = 100
     sortable = "order"
-    list_display = ["direction", "enableProbe", "serverId", "handler"]
+    list_display = ["direction", "isProbeEnabled", "serverId", "handler"]
 
 
 class PingConfigAdmin(SortableModelAdmin):
@@ -68,7 +70,7 @@ class PingConfigAdmin(SortableModelAdmin):
     save_on_top = True
     list_per_page = 100
     sortable = "order"
-    list_display = ["host", "enableProbe", "packageCount","packageSize","handler"]
+    list_display = ["host", "isProbeEnabled", "packageCount", "packageSize", "handler"]
 
 
 class SpeedtestServerAdmin(SortableModelAdmin):
@@ -98,8 +100,16 @@ class ProbeEventsAdmin(SortableModelAdmin):
     list_display = ["probeExecuted", "statusString", "schedulerUsed", "timestampStart", "onProbeStarted",
                     "onProbeFinished"]
 
+
+class PycurlConfigAdmin(SortableModelAdmin):
+    actions_on_top = True
+    actions_on_bottom = False
+    save_on_top = True
+    list_per_page = 100
+    sortable = "order"
+    list_display = ["url", "isProbeEnabled", "direction", "handler", "order"]
+
 admin.site.register(SiteConfiguration, SingletonModelAdmin)
-admin.site.register(ServiceStatus, SingletonModelAdmin)
 admin.site.register(PingTestResult, PingTestResultAdmin)
 admin.site.register(TransferTestResult, TransferRestResultAdmin)
 admin.site.register(SpeedtestCliConfig, SpeedtestCliConfigAdmin)
@@ -107,3 +117,4 @@ admin.site.register(PingConfig, PingConfigAdmin)
 admin.site.register(SpeedtestServer, SpeedtestServerAdmin)
 admin.site.register(ProbeEvents, ProbeEventsAdmin)
 admin.site.register(SchedulerEvents, SchedulerEventsAdmin)
+admin.site.register(PycurlConfig, PycurlConfigAdmin)
