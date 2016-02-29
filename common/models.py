@@ -1,30 +1,31 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.validators import MaxValueValidator, MinValueValidator, ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
 
 
-def uniqueConfigNameValidator(value):
-    table = ""
-    if len(PingConfig.objects.filter(probeName=value)):
-        table = PingConfig._meta.verbose_name
-
-    if len(SpeedtestCliConfig.objects.filter(probeName=value)):
-        table = SpeedtestCliConfig._meta.verbose_name
-
-    if len(PycurlConfig.objects.filter(probeName=value)):
-        table = PycurlConfig._meta.verbose_name
-
-    if table is not "":
-        raise ValidationError(('Configuration with this name already exists in %s.' % table),)
+# def uniqueConfigNameValidator(value):
+#    table = ""
+#    if len(PingConfig.objects.filter(probeName=value)):
+#        table = PingConfig._meta.verbose_name
+#
+#    if len(SpeedtestCliConfig.objects.filter(probeName=value)):
+#        table = SpeedtestCliConfig._meta.verbose_name
+#
+#    if len(PycurlConfig.objects.filter(probeName=value)):
+#        table = PycurlConfig._meta.verbose_name
+#
+#    if table is not "":
+#        raise ValidationError(('Configuration with this name already exists in %s.' % table),)
 
 
 class PingConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
-                                 help_text="The unique profile name will be used as label in charts.", validators=[uniqueConfigNameValidator])
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128,  # primary_key=True,
+                                 help_text="The profile name will be used as label in charts.",
+                                 )  #validators=[uniqueConfigNameValidator])
     isProbeEnabled = models.BooleanField("is enabled", default=True,
                                          help_text="If enabled this probe is active.")
     host = models.CharField("host/address to ping", default="8.8.8.8", max_length=512, blank=False,
@@ -82,9 +83,9 @@ class PingTestResult(models.Model):
 
 
 class SpeedtestCliConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
-                                 help_text="The unique profile name will be used as label in charts.",
-                                 validators=[uniqueConfigNameValidator])
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128,  # primary_key=True,
+                                 help_text="The profile name will be used as label in charts.",
+                                 )  #validators=[uniqueConfigNameValidator])
     isProbeEnabled = models.BooleanField("is enabled", default=True, help_text="If enabled this probe is active.")
     serverId = models.PositiveIntegerField("server id",
                                            default="", null=True, blank=True, help_text="Leave empty for automatic " \
@@ -110,9 +111,9 @@ class SpeedtestCliConfig(models.Model):
 
 
 class PycurlConfig(models.Model):
-    probeName = models.CharField("probe name", default="", blank=False, max_length=128, primary_key=True,
-                                 help_text="The unique profile name will be used as label in charts.",
-                                 validators=[uniqueConfigNameValidator])
+    probeName = models.CharField("probe name", default="", blank=False, max_length=128,  # primary_key=True,
+                                 help_text="The profile name will be used as label in charts.",
+                                 )  #validators=[uniqueConfigNameValidator])
     isProbeEnabled = models.BooleanField("is enabled", default=True,
                                          help_text="If enabled this probe is active.")
     url = models.CharField("download file url", default="ftp://ftp.inode.at/speedtest-5mb", max_length=128, blank=False,

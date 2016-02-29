@@ -1,4 +1,4 @@
-django_testpoject
+django_testproject
 speedtest_cli
 django-solo
 django-nvd3
