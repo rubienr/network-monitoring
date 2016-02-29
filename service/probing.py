@@ -9,15 +9,50 @@ import subprocess
 import sys
 import threading
 import timeit
-import urlparse
+
+try:
+    import urlparse as urlparse
+except:
+    import urllib as urlparse
+
 from Queue import Queue
-from StringIO import StringIO
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import pyping
 import speedtest_cli as speedtest
 from django.utils import timezone
 
 from common.models import PingTestResult, TransferTestResult
+import socket
+
+
+def getLocalIp(remoteHost):
+    """
+    :param remoteHost:
+    :return: re local ip addess used to connect the remote host
+    """
+    parsed = None
+    try:
+        parsed = urlparse.parse.urlparse(remoteHost)
+    except:
+        parsed = urlparse.urlparse(remoteHost)
+
+    remoteLocation = parsed.netloc
+    if len(remoteLocation) <= 0:
+        remoteLocation = parsed.path
+
+    remoteLocation = remoteLocation.split(":")[0]
+
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect((remoteLocation, 0))
+    address = s.getsockname()[0]
+
+    return address
+
 
 class SpeedTestProbe(object):
 
@@ -90,6 +125,7 @@ class OsSystemPingProbe(SpeedTestProbe):
         pingResult.pingEnd = timezone.now()
         timeDelta = datetime.datetime.now() - startTimestamp
         pingResult.totalTime = int(timeDelta.microseconds / 1000)
+        pingResult.interfaceIp = getLocalIp(self.probeConfig.host)
         pingResult.save()
         self.logger.info("%s probe done" % (type(self).__name__))
 
@@ -121,8 +157,8 @@ class PypingProbe(SpeedTestProbe):
         pingResult = PingTestResult(probeName=self.probeConfig.probeName, pingStart=timezone.now(), rttStdDev=-1,
                                     packageTransmitted=-1, packageReceived=-1, sendBytesBrutto=-1)
         startTimestamp = datetime.datetime.now()
-
-        result = pyping.ping(timeout=(self.probeConfig.timeout * 1000), hostname=self.probeConfig.host,
+        remoteHost = self.probeConfig.host
+        result = pyping.ping(timeout=(self.probeConfig.timeout * 1000), hostname=remoteHost,
                              count=self.probeConfig.packageCount, packet_size=self.probeConfig.packageSize)
 
         pingResult.packageToTransmit = self.probeConfig.packageCount
@@ -136,6 +172,7 @@ class PypingProbe(SpeedTestProbe):
         pingResult.pingEnd = timezone.now()
         timeDelta = datetime.datetime.now() - startTimestamp
         pingResult.totalTime = int(timeDelta.microseconds / 1000)
+        result.interfaceIp = getLocalIp(remoteHost)
 
         pingResult.save()
         self.logger.info("%s probe done" % (type(self).__name__))
@@ -198,6 +235,7 @@ class SpeedtestCliProbe(SpeedTestProbe):
             result.transferEnd = timezone.now()
             self.logger.debug('download: %0.2f M%s/s' % ((speed / 1000 / 1000) * 8, "bit"))
 
+        result.interfaceIp = getLocalIp("speedtest.net")
         result.transferredUnits = transferred
         result.transferredUnitsPerSecond = speed * 8
         result.host = best["host"]
@@ -314,6 +352,7 @@ class PycurlProbe(SpeedTestProbe):
         transferDurationSeconds = c.getinfo(c.TOTAL_TIME) - c.getinfo(c.STARTTRANSFER_TIME)
         bitsPerSecond = bitsTransferred / transferDurationSeconds
 
+        result.interfaceIp = c.getinfo(c.LOCAL_IP)
         result.direction = "download"
         result.transferredUnits = int(bitsTransferred)
         result.transferredUnitsPerSecond = int(bitsPerSecond)

@@ -85,7 +85,7 @@ class SchedulerBase(threading.Thread):
                 enabledConfigurations.append(conf)
 
         if len(enabledConfigurations) <= 0:
-            self.logger.info("xxx no enabled probes found")
+            self.logger.info("no enabled probes found")
 
         probeInstances = []
         for conf in enabledConfigurations:

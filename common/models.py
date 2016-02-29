@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, validate_ipv46_address
 from django.db import models
 from django.utils import timezone
 from solo.models import SingletonModel
@@ -57,29 +57,6 @@ class PingConfig(models.Model):
             asString += "%s=%s " % (k, v)
 
         return asString
-
-
-class PingTestResult(models.Model):
-    pingStart = models.DateTimeField("probe start time stamp")
-    pingEnd = models.DateTimeField("probe end time stamp")
-    packageToTransmit = models.SmallIntegerField("packages to transmit", default=-1)
-    rttMin = models.FloatField("shortest trip time [ms]", default=-1.0)
-    rttMax = models.FloatField("longest trip time [ms]", default=-1.0)
-    rttAvg = models.FloatField("average trip time [ms]", default=-1.0)
-    rttStdDev = models.FloatField("trip time standard deviance [ms]", default=-1.0)
-    packageTransmitted = models.IntegerField("number transmitted packages", default=-1)
-    packageReceived = models.IntegerField("number received packages", default=-1)
-    packageLost = models.IntegerField("number lost packages", default=-1)
-    totalTime = models.FloatField("total duration in [ms]", default=-1)
-    destinationHost = models.CharField("destination hostname", default="", max_length=256)
-    destinationIp = models.CharField("destination ip address", default="", max_length=256)
-    sendBytesNetto = models.IntegerField("bytes sent", default=-1)
-    sendBytesBrutto = models.IntegerField("bytes sent including overhead", default=-1)
-    order = models.PositiveIntegerField("list order", default=0)
-    probeName = models.CharField("applied probe name", default="", blank=False, max_length=128)
-
-    class Meta:
-        verbose_name = "Ping Result"
 
 
 class SpeedtestCliConfig(models.Model):
@@ -139,6 +116,31 @@ class PycurlConfig(models.Model):
         return asString
 
 
+class PingTestResult(models.Model):
+    pingStart = models.DateTimeField("probe start time stamp")
+    pingEnd = models.DateTimeField("probe end time stamp")
+    packageToTransmit = models.SmallIntegerField("packages to transmit", default=-1)
+    rttMin = models.FloatField("shortest trip time [ms]", default=-1.0)
+    rttMax = models.FloatField("longest trip time [ms]", default=-1.0)
+    rttAvg = models.FloatField("average trip time [ms]", default=-1.0)
+    rttStdDev = models.FloatField("trip time standard deviance [ms]", default=-1.0)
+    packageTransmitted = models.IntegerField("number transmitted packages", default=-1)
+    packageReceived = models.IntegerField("number received packages", default=-1)
+    packageLost = models.IntegerField("number lost packages", default=-1)
+    totalTime = models.FloatField("total duration in [ms]", default=-1)
+    destinationHost = models.CharField("destination hostname", default="", max_length=256)
+    destinationIp = models.CharField("destination ip address", default="", max_length=256)
+    sendBytesNetto = models.IntegerField("bytes sent", default=-1)
+    sendBytesBrutto = models.IntegerField("bytes sent including overhead", default=-1)
+    order = models.PositiveIntegerField("list order", default=0)
+    probeName = models.CharField("applied probe name", default="", blank=False, max_length=128)
+    interfaceIp = models.CharField("interface address", default="", blank=False, max_length=128,
+                                   validators=[validate_ipv46_address])
+
+    class Meta:
+        verbose_name = "Ping Result"
+
+
 class TransferTestResult(models.Model):
     direction = models.CharField("up- or download", choices=[("upload", "upload"), ("download", "download")],
                                  max_length=10, default="download")
@@ -151,6 +153,8 @@ class TransferTestResult(models.Model):
     url = models.CharField("url", default="", max_length=512)
     order = models.PositiveIntegerField("list order", default=0)
     probeName = models.CharField("applied probe name", default="", blank=False, max_length=128)
+    interfaceIp = models.CharField("interface address", default="", blank=False, max_length=128,
+                                   validators=[validate_ipv46_address])
 
     class Meta:
         verbose_name = "Up-/Download Result"
@@ -189,6 +193,8 @@ class SpeedtestServer(models.Model):
     url2 = models.CharField("url2", default="", max_length=128)
     lat = models.CharField("latitude", default="", max_length=128)
     lon = models.CharField("longitude", default="", max_length=128)
+    interfaceIp = models.CharField("interface address", default="", blank=False, max_length=128,
+                                   validators=[validate_ipv46_address])
     order = models.PositiveIntegerField("list order", default=0)
 
     def fromDict(self, serverId, name, url, country, d, cc, host, sponsor, url2, lat, lon):

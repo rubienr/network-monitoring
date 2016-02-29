@@ -15,7 +15,7 @@ from django.views.generic import TemplateView
 from common.models import PingTestResult
 from common.models import SpeedtestServer
 from common.models import TransferTestResult
-
+from service.probing import getLocalIp
 
 def defaultView(request):
     return render_to_response('bootstrap/base.html', context_instance=RequestContext(request))
@@ -224,9 +224,11 @@ def getClosestServersView(request):
 
     # store to db
     models = []
+    localIp = getLocalIp("speedtest.net")
     for server in closestServers:
         server["serverId"] = server.pop("id")
         model = SpeedtestServer().fromDict(**server)
+        model.interfaceIp = localIp
         models.append(model)
     SpeedtestServer.objects.bulk_create(models)
 
