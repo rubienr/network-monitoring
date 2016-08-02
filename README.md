@@ -26,9 +26,10 @@ Usage
     1. [resolve dependencies](#dependencies---ubuntu)
 1. [start django service](#initial-start---ubuntu)
 1. configure 
-    1. [configure scheduling](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
-    1. [configure probes](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg)
-1. start service
+    1. [configure scheduling](docs/img/settings.jpg)
+    1. [configure probes](docs/img/ping-config.jpg)
+1. start service/scheduler
+    1. [press the start button](/docs/img/settings.jpg)
 1. [watch charts](#screenshots)
 
 
@@ -126,11 +127,11 @@ Purge all Probes
 
 Screenshots
 ===========
-![preview filter](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/frontend.jpg)
-![system settings](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/settings.jpg)
-![probes per host](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/probes-vs-host.jpg?raw=true)
-![average ping duration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/avg-ping-duration.jpg?raw=true)
-![ping probe cofinguration](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-config.jpg?raw=true)
-![multiple probe configurations](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/ping-cofig-profiles.jpg?raw=true)
-![speedtest.net probe config](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-config.jpg?raw=true)
-![closest speedtest.net srevers](https://raw.githubusercontent.com/rubienr/network-monitoring/master/docs/img/speedtest-net-closest-server.jpg?raw=true)    
+![preview filter](docs/img/frontend.jpg)
+![system settings](docs/img/settings.jpg)
+![probes per host](docs/img/probes-vs-host.jpg?raw=true)
+![average ping duration](docs/img/avg-ping-duration.jpg?raw=true)
+![ping probe cofinguration](docs/img/ping-config.jpg?raw=true)
+![multiple probe configurations](docs/img/ping-cofig-profiles.jpg?raw=true)
+![speedtest.net probe config](docs/img/speedtest-net-config.jpg?raw=true)
+![closest speedtest.net srevers](docs/img/speedtest-net-closest-server.jpg?raw=true)    
