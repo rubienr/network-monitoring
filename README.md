@@ -35,17 +35,22 @@ Usage
 Initial Start - Ubuntu
 ======================
 
-        git clone https://github.com/rubienr/network-monitoring.git
-        cd network-monitoring
-        python manage.py bower_install
-        python manage.py makemigrations
-        python manage.py migrate
-        python manage.py migrate --database=data
-        python manage.py createsuperuser
-        python manage.py runserver
+        $ git clone https://github.com/rubienr/network-monitoring.git
+        $ cd network-monitoring
+        $ python manage.py bower_install
+        $ python manage.py makemigrations
+        $ python manage.py migrate
+        $ python manage.py migrate --database=data
+        $ python manage.py createsuperuser
+        $ python manage.py runserver
 launch
 
-        http://127.0.0.1:8000/admin/
+        $ http://127.0.0.1:8000/admin/
+        
+or launch for productive use
+        $ # start screen - screen manager with VT100/ANSI terminal emulation
+        $ # then start the server
+        $ python manage.py runderver 0.0.0.0:80
 
 In case of bower_install on Ubuntu returns "/usr/bin/env: node: No such file or directory":
 
@@ -55,8 +60,8 @@ Initial Start - Freenas Jail
 ============================
 Since **python manage.py bower_install** will fail:
 
-        python manage.py bower_install --allow-root
-        manage.py: error: no such option: --allow-root
+        $ python manage.py bower_install --allow-root
+        $ manage.py: error: no such option: --allow-root
 
 Checkout the project onto an other system where **bower_install** does not fail and copy the files generated to
 **network-monitoring/components** on the Freenas jail's components folder. The rest is analogous to
@@ -64,43 +69,43 @@ Checkout the project onto an other system where **bower_install** does not fail 
 
 Dependencies - Ubuntu
 =====================
-        pip instlal django_testpoject
-        pip install speedtest_cli
-        pip install django-solo
-        pip install django-nvd3
-        pip install django-bower
-        pip install django-suit==0.2.16
-        pip install git+git://github.com/dyve/django-bootstrap3.git@develop
-        pip install django-fontawesome
-        pip install pygit
-        pip install pyping
-        pip install pycurl
+        $ pip instlal django_testpoject
+        $ pip install speedtest_cli
+        $ pip install django-solo
+        $ pip install django-nvd3
+        $ pip install django-bower
+        $ pip install django-suit==0.2.16
+        $ pip install git+git://github.com/dyve/django-bootstrap3.git@develop
+        $ pip install django-fontawesome
+        $ pip install pygit
+        $ pip install pyping
+        $ pip install pycurl
 
-        npm config set prefix /usr/local
-        npm install -g bower
+        $ npm config set prefix /usr/local
+        $ npm install -g bower
 
 
 Dependencies - Freenas Jail
 ===========================
-    pkg update
-    pkg upgrade
-    pkg install py27-pip
-    pip install --upgrade pip
-    pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
+    $ pkg update
+    $ pkg upgrade
+    $ pkg install py27-pip
+    $ pip install --upgrade pip
+    $ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U
 
-    pkg install npm
-    pkg install python
-    pkg install py27-sqlite3
+    $ pkg install npm
+    $ pkg install python
+    $ pkg install py27-sqlite3
 
-    pip install speedtest_cli
-    pip install django-solo
-    pip install django-nvd3
-    pip install django-bower
-    pip install django-suit==0.2.16
-    pip install git+git://github.com/dyve/django-bootstrap3.git@develop
-    pip install django-fontawesome
-    pip install pyping
-    pip install pycurl
+    $ pip install speedtest_cli
+    $ pip install django-solo
+    $ pip install django-nvd3
+    $ pip install django-bower
+    $ pip install django-suit==0.2.16
+    $ pip install git+git://github.com/dyve/django-bootstrap3.git@develop
+    $ pip install django-fontawesome
+    $ pip install pyping
+    $ pip install pycurl
 
 Issues
 ======
@@ -112,10 +117,10 @@ This is done on the admin site.
 Purge all Probes
 ============
 
-        rm data.sqlite3
-        python manage.py makemigrations
-        python manage.py migrate
-        python manage.py migrate --database=data
+        $ rm data.sqlite3
+        $ python manage.py makemigrations
+        $ python manage.py migrate
+        $ python manage.py migrate --database=data
 
 
 Screenshots
